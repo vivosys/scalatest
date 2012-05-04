@@ -662,7 +662,11 @@ object Runner {
     
     if (propertiesMap.isDefinedAt("org.scalatest.ChosenStyles"))
       throw new IllegalArgumentException("Property name 'org.scalatest.ChosenStyles' is used by ScalaTest, please choose other property name.")
-    val configMap = propertiesMap + ("org.scalatest.ChosenStyles" -> chosenStyleSet)
+    val configMap = 
+      if (chosenStyleSet.isEmpty)
+        propertiesMap
+      else
+        propertiesMap + ("org.scalatest.ChosenStyles" -> chosenStyleSet)
 
     fullReporterConfigurations.graphicReporterConfiguration match {
       case Some(GraphicReporterConfiguration(configSet)) => {
@@ -896,7 +900,8 @@ object Runner {
       }
       else if (s.startsWith("-y")) {
         chosenStyles += s
-        chosenStyles += it.next()
+        if (it.hasNext)
+          chosenStyles += it.next()
       }
       else {
         throw new IllegalArgumentException("Unrecognized argument: " + s)

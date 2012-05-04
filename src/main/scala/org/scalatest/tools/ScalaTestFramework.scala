@@ -3,6 +3,7 @@ package org.scalatest.tools
 import org.scalatools.testing._
 import org.scalatest.tools.Runner.parsePropertiesArgsIntoMap
 import org.scalatest.tools.Runner.parseCompoundArgIntoSet
+import org.scalatest.tools.Runner.parseChosenStylesIntoChosenStyleSet
 import SuiteDiscoveryHelper._
 import StringReporter.colorizeLinesIndividually
 import org.scalatest.Suite.formatterForSuiteStarting
@@ -133,11 +134,21 @@ write a sbt plugin to deploy the task.
       // println("sbt args: " + args.toList)
       if (isAccessibleSuite(testClass) || isRunnable(testClass)) {
 
-        val (propertiesArgsList, includesArgsList, excludesArgsList, repoArg) 
+        val (propertiesArgsList, includesArgsList, excludesArgsList, repoArg, chosenStyles) 
           = parsePropsAndTags(args.filter(!_.equals("")))
-        val configMap: Map[String, String] = parsePropertiesArgsIntoMap(propertiesArgsList)
+        val propertiesMap: Map[String, String] = parsePropertiesArgsIntoMap(propertiesArgsList)
         val tagsToInclude: Set[String] = parseCompoundArgIntoSet(includesArgsList, "-n")
         val tagsToExclude: Set[String] = parseCompoundArgIntoSet(excludesArgsList, "-l")
+        val chosenStyleSet: Set[String] = parseChosenStylesIntoChosenStyleSet(chosenStyles, "-y")
+        
+        if (propertiesMap.isDefinedAt("org.scalatest.ChosenStyles"))
+          throw new IllegalArgumentException("Property name 'org.scalatest.ChosenStyles' is used by ScalaTest, please choose other property name.")
+        val configMap = 
+          if (chosenStyleSet.isEmpty)
+            propertiesMap
+          else
+            propertiesMap + ("org.scalatest.ChosenStyles" -> chosenStyleSet)
+        
         val filter = org.scalatest.Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExclude)
         
         val (presentAllDurations, presentInColor, presentShortStackTraces, presentFullStackTraces) =
@@ -189,7 +200,12 @@ write a sbt plugin to deploy the task.
 
             // TODO: Could not get this from Resources. Got:
             // java.util.MissingResourceException: Can't find bundle for base name org.scalatest.ScalaTestBundle, locale en_US
-            val rawString = "Exception encountered when attempting to run a suite with class name: " + testClass.getName
+            val rawString = "Exception encountered when attempting to run suite " + testClass.getName + 
+                            (if (e.getMessage != null) 
+                              ": " + e.getMessage 
+                            else 
+                              ".")
+                
             val formatter = formatterForSuiteAborted(suite, rawString)
 
             val duration = System.currentTimeMillis - suiteStartTime
@@ -242,6 +258,7 @@ write a sbt plugin to deploy the task.
       val includes = new ListBuffer[String]()
       val excludes = new ListBuffer[String]()
       var repoArg: Option[String] = None
+      val chosenStyles = new ListBuffer[String]()
 
       val it = args.iterator
       while (it.hasNext) {
@@ -265,6 +282,11 @@ write a sbt plugin to deploy the task.
           if (repoArg.isEmpty) // Just use first one. Ignore any others.
             repoArg = Some(s)
         }
+        else if (s.startsWith("-y")) {
+          chosenStyles += s
+          if (it.hasNext)
+            chosenStyles += it.next()
+        }
         else if (s == "sequential") {
           // To skip as it is passed in from Play 2.0 as arg to specs2.
           println("Warning: \"sequential\" is ignored by ScalaTest. To get rid of this warning, please add \"testOptions in Test := Nil\" in main definition of your project build file.")
@@ -279,7 +301,7 @@ write a sbt plugin to deploy the task.
           throw new IllegalArgumentException("Unrecognized argument: " + s)
         }
       }
-      (props.toList, includes.toList, excludes.toList, repoArg)
+      (props.toList, includes.toList, excludes.toList, repoArg, chosenStyles.toList)
     }
   }
 }
