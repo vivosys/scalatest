@@ -742,7 +742,7 @@ THIS DOESN'T OVERLOAD. I THINK I'LL EITHER NEED TO USE interceptWithMessage OR J
    * (Employee's name was Bob Jones) Expected IllegalArgumentException to be thrown, but no exception was thrown
    * </pre>
   */
-  def withClue(clue: Any)(fun: => Unit) {
+  def withClue[T](clue: Any)(fun: => T): T = {
     def prepend(currentMessage: Option[String]) =
       currentMessage match {
         case Some(msg) =>

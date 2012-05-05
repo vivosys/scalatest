@@ -154,5 +154,10 @@ class ClueSpec extends FlatSpec with ShouldMatchers with TableDrivenPropertyChec
       caught.getClass should be theSameInstanceAs (e.getClass)
     }
   }
+
+  it should "pass the last value back" in {
+    val result = withClue("hi") { 3 }
+    result should equal (3)
+  }
 }
 
