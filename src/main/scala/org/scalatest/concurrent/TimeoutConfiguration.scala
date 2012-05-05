@@ -46,7 +46,7 @@ trait TimeoutConfiguration {
    * timeout
    * </td>
    * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
-   * 1 second
+   * 150 milliseconds
    * </td>
    * </tr>
    * <tr>
@@ -54,7 +54,7 @@ trait TimeoutConfiguration {
    * interval
    * </td>
    * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
-   * 10 milliseconds
+   * 15 milliseconds
    * </td>
    * </tr>
    * </table>
@@ -66,14 +66,14 @@ trait TimeoutConfiguration {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  final case class TimeoutConfig(timeout: Span = Span(1, Second), interval: Span = Span(10, Millis))
+  final case class TimeoutConfig(timeout: Span = Span(150, Millis), interval: Span = Span(15, Millis))
 
   /**
-   * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>Futures</code>.
+   * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>AsyncAssertions</code>.
    * 
    * <p>
    * The subclasses of this abstract class are used to pass configuration information to
-   * the <code>eventually</code> methods of trait <code>Eventually</code> and the <code>whenReady</code> method of trait <code>Futures</code>.
+   * the <code>eventually</code> methods of trait <code>Eventually</code> and the <code>await</code> methods of trait <code>AsyncAssertions</code>.
    * </p>
    *
    * @author Bill Venners
@@ -82,30 +82,26 @@ trait TimeoutConfiguration {
   sealed abstract class TimeoutConfigParam
 
   /**
-   * A <code>TimeoutConfigParam</code> that specifies the maximum amount of time to allow retries: either invocations of the
-   * by-name parameter passed to <code>eventually</code> that give an unsuccessful result, or futures passed to <code>whenReady</code> that
-   * are canceled, or expired, or not ready.
+   * A <code>TimeoutConfigParam</code> that specifies the maximum amount of time to wait for an asynchronous operation to
+   * complete. 
    *
    * @param value the maximum amount of time to retry before giving up and throwing
    *   <code>TestFailedException</code>.
-   * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    *
    * @author Bill Venners
    */
   final case class Timeout(value: Span) extends TimeoutConfigParam
-
+ // TODO: Check for null
   /**
    * A <code>TimeoutConfigParam</code> that specifies the amount of time to sleep after
-   * each retry: each unsuccessful invocation of the by-name parameter passed to <code>eventually</code> or
-   * each query of a future passed to <code>whenReady</code>.
+   * a retry.
    *
    * @param value the amount of time to sleep between each attempt
-   * @throws IllegalArgumentException if specified <code>value</code> is less than or equal to zero.
    *
    * @author Bill Venners
    */
   final case class Interval(value: Span) extends TimeoutConfigParam
-
+ // TODO: Check for null
   /**
    * Implicit <code>TimeoutConfig</code> value providing default configuration values.
    *
@@ -118,17 +114,13 @@ trait TimeoutConfiguration {
 
   /**
    * Returns a <code>Timeout</code> configuration parameter containing the passed value, which
-   * specifies the maximum amount of time to retry: to allow invocations of the
-   * by-name parameter passed to <code>eventually</code> to give an unsuccessful result, or to
-   * allow a future passed to <code>whenReady</code> to be canceled, or expired, or not ready.
+   * specifies the maximum amount to wait for an asynchronous operation to complete.
    */
   def timeout(value: Span) = Timeout(value)
 
   /**
    * Returns an <code>Interval</code> configuration parameter containing the passed value, which
-   * specifies the amount of time to sleep after
-   * each retry: each unsuccessful invocation of the by-name parameter passed to <code>eventually</code>
-   * or each query of a non-ready, canceled, or expired future passed to <code>whenReady</code>.
+   * specifies the amount of time to sleep after a retry.
    */
   def interval(value: Span) = Interval(value)    // TODO: Throw NPE
 }

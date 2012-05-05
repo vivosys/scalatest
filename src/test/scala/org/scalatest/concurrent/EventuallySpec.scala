@@ -76,7 +76,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("didNotEventuallySucceed", count.toString, "10 milliseconds"))
+      caught.message.value should be (Resources("didNotEventuallySucceed", count.toString, "15 milliseconds"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 8)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
     }
@@ -91,9 +91,11 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("didNotEventuallySucceedBecause", count.toString, "10 milliseconds", "2 did not equal 3"))
+      caught.message.value should be (Resources("didNotEventuallySucceedBecause", count.toString, "15 milliseconds", "2 did not equal 3"))
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 7)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
+      caught.getCause.getClass.getName should be ("org.scalatest.exceptions.TestFailedException")
+      caught.getCause.getMessage should be ("2 did not equal 3")
     }
     
     it("should provides correct stack depth when eventually is called from the overload method") {
@@ -117,16 +119,15 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
       caught4.failedCodeFileName.value should be ("EventuallySpec.scala")
     }
 
-    it("should by default invoke an always-failing by-name for at least 1 second") {
+    it("should by default invoke an always-failing by-name for at least 150 millis") {
       var startTime: Option[Long] = None
       evaluating {
+        startTime = Some(System.currentTimeMillis)
         eventually {
-          if (startTime.isEmpty)
-            startTime = Some(System.currentTimeMillis)
           1 + 1 should equal (3)
         }
       } should produce [TestFailedException]
-      (System.currentTimeMillis - startTime.get).toInt should be >= (1000)
+      (System.currentTimeMillis - startTime.get).toInt should be >= (150)
     }
 
     it("should, if an alternate implicit Timeout is provided, invoke an always-failing by-name by at least the specified timeout") {
@@ -195,6 +196,26 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
         }
       }
       count should equal (1)
+    }
+    
+    it("should, when reach before first interval, wake up every 1/10 of the interval.") {
+      var count = 0
+      var startTime: Option[Long] = None
+      evaluating {
+        eventually(timeout(Span(1000, Millis)), interval(Span(100, Millis))) {
+          if (startTime.isEmpty) {
+            startTime = Some(System.nanoTime)
+            count += 1
+          }
+          else {
+            val durationMillis = (System.nanoTime - startTime.get) / 1000000
+            if (durationMillis < 100)
+              count += 1
+          }
+          1 + 1 should equal (3)
+        }
+      } should produce [TestFailedException]
+      count should be > (1)
     }
   }
 }

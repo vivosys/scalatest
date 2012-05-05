@@ -21,6 +21,8 @@ import org.scalatest.Suite.anErrorThatShouldCauseAnAbort
 import scala.annotation.tailrec
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.exceptions.TestPendingException
+import org.scalatest.time.Span
+import org.scalatest.time.Nanoseconds
 
 /**
  * Trait that provides the <code>eventually</code> construct, which periodically retries executing
@@ -292,6 +294,8 @@ trait Eventually extends TimeoutConfiguration {
       }
     }
 
+    val initialInterval = Span(config.interval.totalNanos * 0.1, Nanoseconds)
+
     @tailrec
     def tryTryAgain(attempt: Int): T = {
       val timeout = config.timeout
@@ -300,8 +304,12 @@ trait Eventually extends TimeoutConfiguration {
         case Right(result) => result
         case Left(e) => 
           val duration = System.nanoTime - startNanos
-          if (duration < timeout.totalNanos)
-            Thread.sleep(interval.millisPart, interval.nanosPart)
+          if (duration < timeout.totalNanos) {
+            if (duration < interval.totalNanos) // For first interval, we wake up every 1/10 of the interval.  This is mainly for optimization purpose. 
+              Thread.sleep(initialInterval.millisPart, initialInterval.nanosPart)
+            else
+              Thread.sleep(interval.millisPart, interval.nanosPart)
+          }
           else {
             def msg =
               if (e.getMessage == null)
