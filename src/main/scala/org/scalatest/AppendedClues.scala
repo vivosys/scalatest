@@ -111,7 +111,7 @@ trait AppendedClues { // TODO, can't put a comma. Write tests to not put the spa
    *
    * @author Bill Venners
    */
-  class Clueful(fun: => Any) {
+  class Clueful[T](fun: => T) {
 
     /**
      * Executes the block of code passed as the constructor parameter to this <code>Clueful</code>, and, if it
@@ -140,7 +140,7 @@ trait AppendedClues { // TODO, can't put a comma. Write tests to not put the spa
      * 2 did not equal 3, not even for very large values of 1
      * </pre>
      */
-    def withClue(clue: Any) {
+    def withClue(clue: Any): T = {
       def append(currentMessage: Option[String]) =
         currentMessage match {
           case Some(msg) =>
@@ -163,7 +163,7 @@ trait AppendedClues { // TODO, can't put a comma. Write tests to not put the spa
     }
   }
 
-  implicit def convertToClueful(fun: => Any) = new Clueful(fun)
+  implicit def convertToClueful[T](fun: => T) = new Clueful(fun)
 }
 
 object AppendedClues extends AppendedClues

@@ -166,5 +166,9 @@ class AppendedCluesSpec extends FlatSpec with ShouldMatchers with AppendedClues 
     caught.message should be ('defined)
     caught.message.get should equal ("message List(1, 2, 3)")
   }
+  it should "pass the last value back" in {
+    val result = 3 withClue("hi")
+    result should equal (3)
+  }
 }
 
