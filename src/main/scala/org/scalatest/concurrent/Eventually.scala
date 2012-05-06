@@ -47,14 +47,14 @@ import org.scalatest.time.Nanoseconds
  * </pre>
  *
  * <p>
- * However, because the default timeout is one second, the following invocation of
+ * However, because the default timeout is 150 milliseconds, the following invocation of
  * <code>eventually</code> would ultimately produce a <code>TestFailedException</code>:
  * </p>
  *
  * <pre class="stHighlight">
  * val xs = 1 to 125
  * val it = xs.iterator
- * eventually { Thread.sleep(999); it.next should be (110) }
+ * eventually { Thread.sleep(149); it.next should be (110) }
  * </pre>
  *
  * <p>
