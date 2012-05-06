@@ -22,6 +22,7 @@ import SharedHelpers.thisLineNumber
 import time.{Millisecond, Span, Millis}
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.exceptions.TestPendingException
+import org.scalatest.exceptions.TestFailedDueToTimeoutException
 
 class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with SeveredStackTraces {
 
@@ -65,7 +66,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
       count should equal (5)
     }
 
-    it("should eventually blow up with a TFE if the by-name continuously throws an exception") {
+    it("should eventually blow up with a TestFailedDueToTimeoutException if the by-name continuously throws an exception") {
 
       var count = 0
       val caught = evaluating {
@@ -74,11 +75,12 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
           throw new RuntimeException
           ()
         }
-      } should produce [TestFailedException]
+      } should produce [TestFailedDueToTimeoutException]
 
       caught.message.value should include ("Attempted " + count.toString + " times")
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 8)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
+      caught.timeout should be (Span(150, Millis))
     }
 
     it("should eventually blow up with a TFE if the by-name continuously throws an exception, and include the last failure message in the TFE message") {

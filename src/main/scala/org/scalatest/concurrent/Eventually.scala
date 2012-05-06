@@ -16,11 +16,10 @@
 package org.scalatest.concurrent
 
 import org.scalatest._
+import exceptions.{TestFailedDueToTimeoutException, TestFailedException, TestPendingException}
 import org.scalatest.exceptions.StackDepthExceptionHelper.getStackDepthFun
 import org.scalatest.Suite.anErrorThatShouldCauseAnAbort
 import scala.annotation.tailrec
-import org.scalatest.exceptions.TestFailedException
-import org.scalatest.exceptions.TestPendingException
 import time.{Nanosecond, Span, Nanoseconds}
 
 // TODO describe backoff algo
@@ -373,10 +372,12 @@ trait Eventually extends PatienceConfiguration {
                 Resources("didNotEventuallySucceed", attempt.toString, durationSpan.prettyString)
               else
                 Resources("didNotEventuallySucceedBecause", attempt.toString, durationSpan.prettyString, e.getMessage)
-            throw new TestFailedException(
+            throw new TestFailedDueToTimeoutException(
               sde => Some(msg),
               Some(e),
-              getStackDepthFun("Eventually.scala", "eventually")
+              getStackDepthFun("Eventually.scala", "eventually"),
+              None,
+              config.timeout
             )
           }
 
