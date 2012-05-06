@@ -31,7 +31,7 @@ import time.{Millis, Second, Span}
  *
  * @author Bill Venners
  */
-trait PatienceConfiguration {
+trait PatienceConfiguration extends ScaledTimeSpans {
 
   /**
    * Configuration object for traits <code>Eventually</code> and <code>AsyncAssertions</code>.
@@ -66,7 +66,7 @@ trait PatienceConfiguration {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  final case class PatienceConfig(timeout: Span = Span(150, Millis), interval: Span = Span(15, Millis))
+  final case class PatienceConfig(timeout: Span = scaled(Span(150, Millis)), interval: Span = scaled(Span(15, Millis)))
 
   /**
    * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>AsyncAssertions</code>.
