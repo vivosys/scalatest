@@ -79,10 +79,10 @@ trait PatienceConfiguration {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  sealed abstract class TimeoutConfigParam
+  sealed abstract class PatienceConfigParam
 
   /**
-   * A <code>TimeoutConfigParam</code> that specifies the maximum amount of time to wait for an asynchronous operation to
+   * A <code>PatienceConfigParam</code> that specifies the maximum amount of time to wait for an asynchronous operation to
    * complete. 
    *
    * @param value the maximum amount of time to retry before giving up and throwing
@@ -90,17 +90,17 @@ trait PatienceConfiguration {
    *
    * @author Bill Venners
    */
-  final case class Timeout(value: Span) extends TimeoutConfigParam
+  final case class Timeout(value: Span) extends PatienceConfigParam
  // TODO: Check for null
   /**
-   * A <code>TimeoutConfigParam</code> that specifies the amount of time to sleep after
+   * A <code>PatienceConfigParam</code> that specifies the amount of time to sleep after
    * a retry.
    *
    * @param value the amount of time to sleep between each attempt
    *
    * @author Bill Venners
    */
-  final case class Interval(value: Span) extends TimeoutConfigParam
+  final case class Interval(value: Span) extends PatienceConfigParam
  // TODO: Check for null
   /**
    * Implicit <code>PatienceConfig</code> value providing default configuration values.

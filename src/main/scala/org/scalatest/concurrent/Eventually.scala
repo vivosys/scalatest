@@ -139,7 +139,7 @@ import org.scalatest.time.Nanoseconds
  *
  * <p>
  * In addition to taking a <code>PatienceConfig</code> object as an implicit parameter, the <code>eventually</code> methods of trait
- * <code>Eventually</code> include overloaded forms that take one or two <code>TimeoutConfigParam</code>
+ * <code>Eventually</code> include overloaded forms that take one or two <code>PatienceConfigParam</code>
  * objects that you can use to override the values provided by the implicit <code>PatienceConfig</code> for a single <code>eventually</code>
  * invocation. For example, if you want to set <code>timeout</code> to 5000 for just one particular <code>eventually</code> invocation,
  * you can do so like this:
