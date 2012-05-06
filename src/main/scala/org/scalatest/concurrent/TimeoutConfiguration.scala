@@ -34,7 +34,7 @@ import time.{Millis, Second, Span}
 trait TimeoutConfiguration {
 
   /**
-   * Configuration object for traits <code>Eventually</code> and <code>Futures</code>.
+   * Configuration object for traits <code>Eventually</code> and <code>AsyncAssertions</code>.
    *
    * <p>
    * The default values for the parameters are:
