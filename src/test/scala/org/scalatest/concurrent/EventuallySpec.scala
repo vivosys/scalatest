@@ -76,7 +76,7 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("didNotEventuallySucceed", count.toString, "15 milliseconds"))
+      caught.message.value should include ("Attempted " + count.toString + " times")
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 8)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
     }
@@ -91,8 +91,9 @@ class EventuallySpec extends FunSpec with ShouldMatchers with OptionValues with 
         }
       } should produce [TestFailedException]
 
-      caught.message.value should be (Resources("didNotEventuallySucceedBecause", count.toString, "15 milliseconds", "2 did not equal 3"))
-      caught.failedCodeLineNumber.value should equal (thisLineNumber - 7)
+      caught.message.value should include ("Attempted " + count.toString + " times")
+      caught.message.value should include ("2 did not equal 3")
+      caught.failedCodeLineNumber.value should equal (thisLineNumber - 8)
       caught.failedCodeFileName.value should be ("EventuallySpec.scala")
       caught.getCause.getClass.getName should be ("org.scalatest.exceptions.TestFailedException")
       caught.getCause.getMessage should be ("2 did not equal 3")

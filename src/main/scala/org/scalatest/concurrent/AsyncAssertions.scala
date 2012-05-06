@@ -306,7 +306,7 @@ trait AsyncAssertions extends PatienceConfiguration {
     @volatile private var thrown: Option[Throwable] = None
 
     private def setThrownIfEmpty(t: Throwable) {
-      synchronized {
+      synchronized {      // Why is this synchronized?
         if (thrown.isEmpty) thrown = Some(t)
       }
     }
@@ -332,6 +332,7 @@ trait AsyncAssertions extends PatienceConfiguration {
       }
       catch { // Exceptions after the first are swallowed (need to get to dismissals later)
         case t: Throwable => setThrownIfEmpty(t)
+        // notifyAll
       }
     }
 
@@ -364,7 +365,7 @@ trait AsyncAssertions extends PatienceConfiguration {
       def timedOut = startTime + timeout.totalNanos < System.nanoTime
       while (dismissedCount < dismissals && !timedOut && thrown.isEmpty)
         Thread.sleep(interval.millisPart)
-
+          // Similar while loop termination cond, but instead of sleep I wait what's left
       dismissedCount = 0 // reset the dismissed count to support multiple await calls
       if (thrown.isDefined)
         throw thrown.get
@@ -660,6 +661,7 @@ trait AsyncAssertions extends PatienceConfiguration {
      */
     def dismiss() {
       dismissedCount += 1
+      // notifyAll
     }
   }
 }

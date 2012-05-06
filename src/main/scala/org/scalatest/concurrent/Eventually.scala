@@ -21,8 +21,7 @@ import org.scalatest.Suite.anErrorThatShouldCauseAnAbort
 import scala.annotation.tailrec
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.exceptions.TestPendingException
-import org.scalatest.time.Span
-import org.scalatest.time.Nanoseconds
+import time.{Nanosecond, Span, Nanoseconds}
 
 // TODO describe backoff algo
 
@@ -203,7 +202,7 @@ import org.scalatest.time.Nanoseconds
  * Nevertheless, because sometimes it will make sense to use <code>Eventually</code> in unit tests (and 
  * because it is destined to happen anyway even when it isn't the best choice), <code>Eventually</code> by default uses
  * timeouts tuned for unit tests: Calls to <code>eventually</code> are more likely to succeed on fast development machines, and if a call does time out, 
- * it will do so quickly so the unit tests can keep moving. 
+ * it will do so quickly so the unit tests can move on.
  * </p>
  *
  * <p>
@@ -219,8 +218,8 @@ import org.scalatest.time.Nanoseconds
  * </pre>
  *
  * <p>
- * Trait <code>IntegrationPatience</code> increases the default timeout from 150 milliseconds to 15 seconds, and increases the default
- * interval from 15 millisecones to 150 milliseconds. If need be, you can do fine tuning of the timeout and interval by
+ * Trait <code>IntegrationPatience</code> increases the default timeout from 150 milliseconds to 15 seconds, the default
+ * interval from 15 milliseconds to 150 milliseconds. If need be, you can do fine tuning of the timeout and interval by
  * specifying a <a href="../tools/Runner$#timeSpanScaleFactor">time span scale factor</a> when you
  * run your tests.
  * </p>
@@ -368,11 +367,12 @@ trait Eventually extends PatienceConfiguration {
               Thread.sleep(interval.millisPart, interval.nanosPart)
           }
           else {
+            val durationSpan = Span(1, Nanosecond) scaledBy duration // Use scaledBy to get pretty units
             def msg =
               if (e.getMessage == null)
-                Resources("didNotEventuallySucceed", attempt.toString, interval.prettyString)
+                Resources("didNotEventuallySucceed", attempt.toString, durationSpan.prettyString)
               else
-                Resources("didNotEventuallySucceedBecause", attempt.toString, interval.prettyString, e.getMessage)
+                Resources("didNotEventuallySucceedBecause", attempt.toString, durationSpan.prettyString, e.getMessage)
             throw new TestFailedException(
               sde => Some(msg),
               Some(e),
