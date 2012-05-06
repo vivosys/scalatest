@@ -67,15 +67,18 @@ trait PatienceConfiguration extends AbstractPatienceConfiguration {
    */
   final case class Interval(value: Span) extends PatienceConfigParam
  // TODO: Check for null
+
+  private val defaultPatienceConfig = PatienceConfig()
+
   /**
    * Implicit <code>PatienceConfig</code> value providing default configuration values.
    *
    * <p>
-   * To change the default configuration, override or hide this <code>val</code> with another implicit
+   * To change the default configuration, override or hide this <code>def</code> with another implicit
    * <code>PatienceConfig</code> containing your desired default configuration values.
    * </p>
    */
-  implicit val patienceConfig = PatienceConfig()
+  implicit def patienceConfig = defaultPatienceConfig
 
   /**
    * Returns a <code>Timeout</code> configuration parameter containing the passed value, which
