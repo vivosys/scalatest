@@ -23,10 +23,26 @@ import time.Span
  * between retries.
  *
  * <p>
+ * This trait is called <code>PatienceConfiguration</code> because it allows configuration of two
+ * values related to patience: The timeout specifies how much time asynchronous operations will be given
+ * to succeed before giving up. The interval specifies how much time to wait between checks to determine
+ * success when polling.
+ * </p>
+ *
+ * <p>
+ * The default values for timeout and interval provided by trait <code>PatienceConfiguration</code> are tuned for unit testing,
+ * where running tests as fast as
+ * possible is a high priority and subsystems requiring asynchronous operations are therefore often replaced
+ * by mocks. Values more appropriate to integration testing, where asynchronous operations tend to take longer because the tests are run
+ * against the actual subsytems (not mocks), can be obtained by mixing in trait <a href="IntegrationPatience.html"><code>IntegrationPatience</code></a>.
+ * </p>
+ *
+ * <p>
  * Timeouts are used by the <code>eventually</code> methods of trait
  * <a href="Eventually.html"><code>Eventually</code></a> and the <code>await</code> method of class
  * <a href="AsyncAssertions/Waiter.html"><code>Waiter</code></a>, a member of trait
- * <a href="AsyncAssertions.html"><code>AsyncAssertions</code></a>.
+ * <a href="AsyncAssertions.html"><code>AsyncAssertions</code></a>. Intervals are used by 
+ * the <code>eventually</code> methods.
  * </p>
  *
  * @author Bill Venners

@@ -24,6 +24,8 @@ import org.scalatest.exceptions.TestPendingException
 import org.scalatest.time.Span
 import org.scalatest.time.Nanoseconds
 
+// TODO describe backoff algo
+
 /**
  * Trait that provides the <code>eventually</code> construct, which periodically retries executing
  * a passed by-name parameter, until it either succeeds or the configured timeout has been surpassed.
@@ -54,20 +56,21 @@ import org.scalatest.time.Nanoseconds
  * <pre class="stHighlight">
  * val xs = 1 to 125
  * val it = xs.iterator
- * eventually { Thread.sleep(149); it.next should be (110) }
+ * eventually { Thread.sleep(50); it.next should be (110) }
  * </pre>
  *
  * <p>
- * Assuming the default configuration parameters, a <code>timeout</code> of 1 second and an <code>interval</code> of 10 milliseconds,
+ * Assuming the default configuration parameters, a <code>timeout</code> of 150 milliseconds and an <code>interval</code> of 15 milliseconds,
  * were passed implicitly to <code>eventually</code>, the detail message of the thrown
  * <code>TestFailedException</code> would look like:
  * </p>
  *
  * <p>
- * <code>The code passed to eventually never returned normally. Attempted 2 times, sleeping 10 milliseconds between each attempt.</code>
+ * <code>The code passed to eventually never returned normally. Attempted 1 times, sleeping 15 milliseconds between each attempt. Last failure message:
+ * 1 was not equal to 110.</code>
  * </p>
  *
- * <a name="retryConfig"></a><h2>Configuration of <code>eventually</code></h2>
+ * <a name="patienceConfig"></a><h2>Configuration of <code>eventually</code></h2>
  *
  * <p>
  * The <code>eventually</code> methods of this trait can be flexibly configured.
@@ -89,10 +92,10 @@ import org.scalatest.time.Nanoseconds
  * </tr>
  * <tr>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * timeout
+ * <code>timeout</code>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * 1 second
+ * <code>scaled(150 milliseconds)</code>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
  * the maximum amount of time to allow unsuccessful attempts before giving up and throwing <code>TestFailedException</code>
@@ -100,10 +103,10 @@ import org.scalatest.time.Nanoseconds
  * </tr>
  * <tr>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * interval
+ * <code>interval</code>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
- * 10 milliseconds
+ * <code>scaled(15 milliseconds)</code>
  * </td>
  * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: left">
  * the amount of time to sleep between each attempt
@@ -114,18 +117,18 @@ import org.scalatest.time.Nanoseconds
  * <p>
  * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>PatienceConfig</code>
  * object as an implicit parameter. This object provides values for the two configuration parameters. Trait
- * <code>Eventually</code> provides an implicit <code>val</code> named <code>retryConfig</code> with each
+ * <code>Eventually</code> provides an implicit <code>val</code> named <code>patienceConfig</code> with each
  * configuration parameter set to its default value. 
  * If you want to set one or more configuration parameters to a different value for all invocations of
  * <code>eventually</code> in a suite you can override this
  * val (or hide it, for example, if you are importing the members of the <code>Eventually</code> companion object rather
  * than mixing in the trait). For example, if
  * you always want the default <code>timeout</code> to be 2 seconds and the default <code>interval</code> to be 5 milliseconds, you
- * can override <code>retryConfig</code>, like this:
+ * can override <code>patienceConfig</code>, like this:
  *
  * <pre class="stHighlight">
- * implicit override val retryConfig =
- *   PatienceConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
+ * implicit override val patienceConfig =
+ *   PatienceConfig(timeout = scaled(Span(2, Seconds)), interval = scaled(Span(5, Millis)))
  * </pre>
  *
  * <p>
@@ -133,9 +136,14 @@ import org.scalatest.time.Nanoseconds
  * </p>
  *
  * <pre class="stHighlight">
- * implicit val retryConfig =
- *   PatienceConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
+ * implicit val patienceConfig =
+ *   PatienceConfig(timeout = scaled(Span(2, Seconds)), interval = scaled(Span(5, Millis)))
  * </pre>
+ *
+ * <p>
+ * Passing your new default values to <code>scaled</code> is optional, but a good idea because it allows them to 
+ * be easily scaled if run on a slower or faster system.
+ * </p>
  *
  * <p>
  * In addition to taking a <code>PatienceConfig</code> object as an implicit parameter, the <code>eventually</code> methods of trait
@@ -156,7 +164,7 @@ import org.scalatest.time.Nanoseconds
  * </p>
  * 
  * <pre class="stHighlight">
- * eventually (timeout(Span(5, Seconds)), interval(Span(5, Millis)) { it.next should be (110) }
+ * eventually (timeout(Span(5, Seconds)), interval(Span(5, Millis))) { it.next should be (110) }
  * </pre>
  *
  * <p>
@@ -165,8 +173,57 @@ import org.scalatest.time.Nanoseconds
  * </p>
  *
  * <pre class="stHighlight">
- * eventually (timeout(5 seconds), interval(5 millis) { it.next should be (110) }
+ * eventually (timeout(5 seconds), interval(5 millis)) { it.next should be (110) }
  * </pre>
+ *
+ * <p>
+ * Note that ScalaTest will not scale any time span that is not explicitly passed to <code>scaled</code> to make
+ * the meaning of the code as obvious as possible. Thus
+ * if you ask for "<code>timeout(5 seconds)</code>" you will get exactly that: a timeout of five seconds. If you want such explicitly
+ * given values to be scaled, you must say pass them to <code>scale</code> explicitly like this:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * eventually (timeout(scaled(5 seconds))) { it.next should be (110) }
+ * </pre>
+ *
+ * <p>
+ * The previous code says more clearly that the timeout will be five seconds, unless scaled higher or lower by the <code>scaled</code> method.
+ * </p>
+ *
+ * <a name="patienceConfig"></a><h2>Usage note: <code>Eventually</code> intended primarily for integration testing</h2>
+ *
+ * <p>
+ * Although the default timeouts of trait <code>Eventually</code> are tuned for unit testing, the use of <code>Eventually</code> in unit tests is
+ * a choice you should question. Usually during unit testing you'll want to mock out subsystems that would require <code>Eventually</code>, such as
+ * network services with varying and unpredictable response times. This will allow your unit tests to run as fast as possible while still testing
+ * the focused bits of behavior they are designed to test.
+ *
+ * <p>
+ * Nevertheless, because sometimes it will make sense to use <code>Eventually</code> in unit tests (and 
+ * because it is destined to happen anyway even when it isn't the best choice), <code>Eventually</code> by default uses
+ * timeouts tuned for unit tests: Calls to <code>eventually</code> are more likely to succeed on fast development machines, and if a call does time out, 
+ * it will do so quickly so the unit tests can keep moving. 
+ * </p>
+ *
+ * <p>
+ * When you are using <code>Eventually</code> for integration testing, on the other hand, the default timeout and interval may be too small. A
+ * good way to override them is by mixing in trait <a href="IntegrationPatience.html"><code>IntegrationPatience</code></a> or a similar trait of your
+ * own making. Here's an example:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * class ExampleSpec extends FeatureSpec with Eventually with IntegrationPatience {
+ *   // Your integration tests here...
+ * }
+ * </pre>
+ *
+ * <p>
+ * Trait <code>IntegrationPatience</code> increases the default timeout from 150 milliseconds to 15 seconds, and increases the default
+ * interval from 15 millisecones to 150 milliseconds. If need be, you can do fine tuning of the timeout and interval by
+ * specifying a <a href="../tools/Runner$#timeSpanScaleFactor">time span scale factor</a> when you
+ * run your tests.
+ * </p>
  *
  * @author Bill Venners
  * @author Chua Chee Seng
@@ -294,7 +351,7 @@ trait Eventually extends PatienceConfiguration {
       }
     }
 
-    val initialInterval = Span(config.interval.totalNanos * 0.1, Nanoseconds)
+    val initialInterval = Span(config.interval.totalNanos * 0.1, Nanoseconds) // config.interval scaledBy 0.1
 
     @tailrec
     def tryTryAgain(attempt: Int): T = {
