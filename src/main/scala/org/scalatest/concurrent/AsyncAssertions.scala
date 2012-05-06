@@ -60,7 +60,7 @@ import org.scalatest.exceptions.TestFailedException
  * </pre>
  *
  * <p>
- * The default value for <code>timeout</code>, provided via an implicit <code>TimeoutConfig</code> parameter, is 1 second. The default value for
+ * The default value for <code>timeout</code>, provided via an implicit <code>PatienceConfig</code> parameter, is 1 second. The default value for
  * <code>dismissals</code> is 1. The <code>await</code> method will block until either it is dismissed a sufficient number of times by other threads or
  * an assertion fails in another thread. Thus if you just want to perform assertions in just one other thread, only that thread will be
  * performing a dismissal, so you can use the default value of 1 for <code>dismissals</code>.
@@ -68,7 +68,7 @@ import org.scalatest.exceptions.TestFailedException
  *
  * <p>
  * <code>Waiter</code> contains several overloaded forms of <code>await</code>, most of which take an implicit
- * <code>TimeoutConfig</code> parameter. To change the default timeout configuration, override or hide
+ * <code>PatienceConfig</code> parameter. To change the default timeout configuration, override or hide
  * (if you imported the members of <code>AsyncAssertions</code> companion object instead of mixing in the
  * trait) <code>timeoutConfig</code> with a new one that returns your desired configuration.
  * </p>
@@ -152,7 +152,7 @@ import org.scalatest.exceptions.TestFailedException
  *
  * @author Bill Venners
  */
-trait AsyncAssertions extends TimeoutConfiguration {
+trait AsyncAssertions extends PatienceConfiguration {
 
   /**
    * A configuration parameter that specifies the number of dismissals to wait for before returning normally
@@ -206,7 +206,7 @@ trait AsyncAssertions extends TimeoutConfiguration {
    * </pre>
    *
    * <p>
-   * The default value for <code>timeout</code>, provided via an implicit <code>TimeoutConfig</code> parameter, is 1 second. The default value for
+   * The default value for <code>timeout</code>, provided via an implicit <code>PatienceConfig</code> parameter, is 1 second. The default value for
    * <code>dismissals</code> is 1. The <code>await</code> method will block until either it is dismissed a sufficient number of times by other threads or
    * an assertion fails in another thread. Thus if you just want to perform assertions in just one other thread, only that thread will be
    * performing a dismissal, so you can use the default value of 1 for <code>dismissals</code>.
@@ -214,7 +214,7 @@ trait AsyncAssertions extends TimeoutConfiguration {
    *
    * <p>
    * <code>Waiter</code> contains several overloaded forms of <code>await</code>, most of which take an implicit
-   * <code>TimeoutConfig</code> parameter. To change the default timeout configuration, override or hide
+   * <code>PatienceConfig</code> parameter. To change the default timeout configuration, override or hide
    * (if you imported the members of <code>AsyncAssertions</code> companion object instead of mixing in the
    * trait) <code>timeoutConfig</code> with a new one that returns your desired configuration.
    * </p>
@@ -375,7 +375,7 @@ trait AsyncAssertions extends TimeoutConfiguration {
     /**
      * Wait for an exception to be produced by the by-name passed to <code>apply</code>, or one dismissal,
      * sleeping an interval between checks and timing out after a timeout, both configured
-     * by an implicit <code>TimeoutConfig</code>.
+     * by an implicit <code>PatienceConfig</code>.
      *
      * <p>
      * This method may only be invoked by the thread that created the <code>Waiter</code>.
@@ -398,17 +398,17 @@ trait AsyncAssertions extends TimeoutConfiguration {
      * of time the thread that calls <code>await</code> will sleep between "checks."
      * </p>
      *
-     * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
      *          <code>interval</code> parameters
      */
-    def await[T]()(implicit config: TimeoutConfig) {
+    def await[T]()(implicit config: PatienceConfig) {
       awaitImpl(config.timeout, config.interval)
     }
 
     /**
      * Wait for an exception to be produced by the by-name passed to <code>apply</code>, or one dismissal,
      * sleeping the specified interval between checks and timing out after a timeout configured
-     * by an implicit <code>TimeoutConfig</code>.
+     * by an implicit <code>PatienceConfig</code>.
      *
      * <p>
      * This method may only be invoked by the thread that created the <code>Waiter</code>.
@@ -433,17 +433,17 @@ trait AsyncAssertions extends TimeoutConfiguration {
      *
      * @param interval:  the <code>Interval</code> configuration parameter containing the specified interval
      *   of time to sleep between checks
-     * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
      *          <code>interval</code> parameters
      */
-    def await[T](interval: Interval)(implicit config: TimeoutConfig) {
+    def await[T](interval: Interval)(implicit config: PatienceConfig) {
       awaitImpl(config.timeout, interval.value)
     }
 
     /**
      * Wait for an exception to be produced by the by-name passed to <code>apply</code>, or one dismissal,
      * timing out after the specified timeout and sleeping an interval between checks configured
-     * by an implicit <code>TimeoutConfig</code>.
+     * by an implicit <code>PatienceConfig</code>.
      *
      * <p>
      * This method may only be invoked by the thread that created the <code>Waiter</code>.
@@ -467,10 +467,10 @@ trait AsyncAssertions extends TimeoutConfiguration {
      * </p>
      *
      * @param timeout:  the <code>Timeout</code> configuration parameter containing the specified timeout
-     * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
      *          <code>interval</code> parameters
      */
-    def await[T](timeout: Timeout)(implicit config: TimeoutConfig) {
+    def await[T](timeout: Timeout)(implicit config: PatienceConfig) {
       awaitImpl(timeout.value, config.interval)
     }
 
@@ -510,7 +510,7 @@ trait AsyncAssertions extends TimeoutConfiguration {
     /**
      * Wait for an exception to be produced by the by-name passed to <code>apply</code>, or the specified
      * number of dismissals, sleeping an interval between checks and timing out after a timeout, both configured
-     * by an implicit <code>TimeoutConfig</code>.
+     * by an implicit <code>PatienceConfig</code>.
      *
      * <p>
      * This method may only be invoked by the thread that created the <code>Waiter</code>.
@@ -535,17 +535,17 @@ trait AsyncAssertions extends TimeoutConfiguration {
      *
      * @param dismissals:  the <code>Dismissals</code> configuration parameter containing the number of
      *    dismissals for which to wait
-     * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
      *          <code>interval</code> parameters
      */
-    def await[T](dismissals: Dismissals)(implicit config: TimeoutConfig) {
+    def await[T](dismissals: Dismissals)(implicit config: PatienceConfig) {
       awaitImpl(config.timeout, config.interval, dismissals.value)
     }
 
     /**
      * Wait for an exception to be produced by the by-name passed to <code>apply</code>, or the specified number
      * of dismissals, sleeping the specified interval between checks and timing out after a timeout configured
-     * by an implicit <code>TimeoutConfig</code>.
+     * by an implicit <code>PatienceConfig</code>.
      *
      * <p>
      * This method may only be invoked by the thread that created the <code>Waiter</code>.
@@ -572,17 +572,17 @@ trait AsyncAssertions extends TimeoutConfiguration {
      *   of time to sleep between checks
      * @param dismissals:  the <code>Dismissals</code> configuration parameter containing the number of
      *    dismissals for which to wait
-     * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
      *          <code>interval</code> parameters
      */
-    def await[T](interval: Interval, dismissals: Dismissals)(implicit config: TimeoutConfig) {
+    def await[T](interval: Interval, dismissals: Dismissals)(implicit config: PatienceConfig) {
       awaitImpl(config.timeout, interval.value, dismissals.value)
     }
 
     /**
      * Wait for an exception to be produced by the by-name passed to <code>apply</code>, or the specified
      * number of dismissals, timing out after the specified timeout and sleeping an interval between checks configured
-     * by an implicit <code>TimeoutConfig</code>.
+     * by an implicit <code>PatienceConfig</code>.
      *
      * <p>
      * This method may only be invoked by the thread that created the <code>Waiter</code>.
@@ -608,10 +608,10 @@ trait AsyncAssertions extends TimeoutConfiguration {
      * @param timeout:  the <code>Timeout</code> configuration parameter containing the specified timeout
      * @param dismissals:  the <code>Dismissals</code> configuration parameter containing the number of
      *    dismissals for which to wait
-     * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
      *          <code>interval</code> parameters
      */
-    def await[T](timeout: Timeout, dismissals: Dismissals)(implicit config: TimeoutConfig) {
+    def await[T](timeout: Timeout, dismissals: Dismissals)(implicit config: PatienceConfig) {
       awaitImpl(timeout.value, config.interval, dismissals.value)
     }
 

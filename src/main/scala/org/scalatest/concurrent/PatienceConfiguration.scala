@@ -31,7 +31,7 @@ import time.{Millis, Second, Span}
  *
  * @author Bill Venners
  */
-trait TimeoutConfiguration {
+trait PatienceConfiguration {
 
   /**
    * Configuration object for traits <code>Eventually</code> and <code>AsyncAssertions</code>.
@@ -66,7 +66,7 @@ trait TimeoutConfiguration {
    * @author Bill Venners
    * @author Chua Chee Seng
    */
-  final case class TimeoutConfig(timeout: Span = Span(150, Millis), interval: Span = Span(15, Millis))
+  final case class PatienceConfig(timeout: Span = Span(150, Millis), interval: Span = Span(15, Millis))
 
   /**
    * Abstract class defining a family of configuration parameters for traits <code>Eventually</code> and <code>AsyncAssertions</code>.
@@ -103,14 +103,14 @@ trait TimeoutConfiguration {
   final case class Interval(value: Span) extends TimeoutConfigParam
  // TODO: Check for null
   /**
-   * Implicit <code>TimeoutConfig</code> value providing default configuration values.
+   * Implicit <code>PatienceConfig</code> value providing default configuration values.
    *
    * <p>
    * To change the default configuration, override or hide this <code>val</code> with another implicit
-   * <code>TimeoutConfig</code> containing your desired default configuration values.
+   * <code>PatienceConfig</code> containing your desired default configuration values.
    * </p>
    */
-  implicit val timeoutConfig = TimeoutConfig()
+  implicit val patienceConfig = PatienceConfig()
 
   /**
    * Returns a <code>Timeout</code> configuration parameter containing the passed value, which

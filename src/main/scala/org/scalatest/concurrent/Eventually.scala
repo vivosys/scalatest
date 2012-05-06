@@ -112,7 +112,7 @@ import org.scalatest.time.Nanoseconds
  * </table>
  *
  * <p>
- * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>TimeoutConfig</code>
+ * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>PatienceConfig</code>
  * object as an implicit parameter. This object provides values for the two configuration parameters. Trait
  * <code>Eventually</code> provides an implicit <code>val</code> named <code>retryConfig</code> with each
  * configuration parameter set to its default value. 
@@ -125,7 +125,7 @@ import org.scalatest.time.Nanoseconds
  *
  * <pre class="stHighlight">
  * implicit override val retryConfig =
- *   TimeoutConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
+ *   PatienceConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
@@ -134,13 +134,13 @@ import org.scalatest.time.Nanoseconds
  *
  * <pre class="stHighlight">
  * implicit val retryConfig =
- *   TimeoutConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
+ *   PatienceConfig(timeout = Span(2, Seconds), interval = Span(5, Millis))
  * </pre>
  *
  * <p>
- * In addition to taking a <code>TimeoutConfig</code> object as an implicit parameter, the <code>eventually</code> methods of trait
+ * In addition to taking a <code>PatienceConfig</code> object as an implicit parameter, the <code>eventually</code> methods of trait
  * <code>Eventually</code> include overloaded forms that take one or two <code>TimeoutConfigParam</code>
- * objects that you can use to override the values provided by the implicit <code>TimeoutConfig</code> for a single <code>eventually</code>
+ * objects that you can use to override the values provided by the implicit <code>PatienceConfig</code> for a single <code>eventually</code>
  * invocation. For example, if you want to set <code>timeout</code> to 5000 for just one particular <code>eventually</code> invocation,
  * you can do so like this:
  * </p>
@@ -151,7 +151,7 @@ import org.scalatest.time.Nanoseconds
  *
  * <p>
  * This invocation of <code>eventually</code> will use 5 seconds for the <code>timeout</code> and whatever value is specified by the
- * implicitly passed <code>TimeoutConfig</code> object for the <code>interval</code> configuration parameter.
+ * implicitly passed <code>PatienceConfig</code> object for the <code>interval</code> configuration parameter.
  * If you want to set both configuration parameters in this way, just list them separated by commas:
  * </p>
  * 
@@ -171,7 +171,7 @@ import org.scalatest.time.Nanoseconds
  * @author Bill Venners
  * @author Chua Chee Seng
  */
-trait Eventually extends TimeoutConfiguration {
+trait Eventually extends PatienceConfiguration {
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -199,7 +199,7 @@ trait Eventually extends TimeoutConfiguration {
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
   def eventually[T](timeout: Timeout, interval: Interval)(fun: => T): T =
-    eventually(fun)(TimeoutConfig(timeout.value, interval.value))
+    eventually(fun)(PatienceConfig(timeout.value, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -218,17 +218,17 @@ trait Eventually extends TimeoutConfiguration {
    * <code>TestFailedException</code> is configured by the value contained in the passed
    * <code>timeout</code> parameter.
    * The interval to sleep between attempts is configured by the <code>interval</code> field of
-   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+   * the <code>PatienceConfig</code> passed implicitly as the last parameter.
    * </p>
    *
    * @param timeout the <code>Timeout</code> configuration parameter
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config the <code>TimeoutConfig</code> object containing the (unused) <code>timeout</code> and
+   * @param config the <code>PatienceConfig</code> object containing the (unused) <code>timeout</code> and
    *          (used) <code>interval</code> parameters
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](timeout: Timeout)(fun: => T)(implicit config: TimeoutConfig): T =
-    eventually(fun)(TimeoutConfig(timeout.value, config.interval))
+  def eventually[T](timeout: Timeout)(fun: => T)(implicit config: PatienceConfig): T =
+    eventually(fun)(PatienceConfig(timeout.value, config.interval))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -244,19 +244,19 @@ trait Eventually extends TimeoutConfiguration {
    *
    * <p>
    * The maximum amount of time in milliseconds to tolerate unsuccessful attempts before giving up is configured by the <code>timeout</code> field of
-   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+   * the <code>PatienceConfig</code> passed implicitly as the last parameter.
    * The interval to sleep between attempts is configured by the value contained in the passed
    * <code>interval</code> parameter.
    * </p>
    *
    * @param interval the <code>Interval</code> configuration parameter
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config the <code>TimeoutConfig</code> object containing the (used) <code>timeout</code> and
+   * @param config the <code>PatienceConfig</code> object containing the (used) <code>timeout</code> and
    *          (unused) <code>interval</code> parameters
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](interval: Interval)(fun: => T)(implicit config: TimeoutConfig): T =
-    eventually(fun)(TimeoutConfig(config.timeout, interval.value))
+  def eventually[T](interval: Interval)(fun: => T)(implicit config: PatienceConfig): T =
+    eventually(fun)(PatienceConfig(config.timeout, interval.value))
 
   /**
    * Invokes the passed by-name parameter repeatedly until it either succeeds, or a configured maximum
@@ -272,17 +272,17 @@ trait Eventually extends TimeoutConfiguration {
    *
    * <p>
    * The maximum amount of time in milliseconds to tolerate unsuccessful attempts before giving up is configured by the <code>timeout</code> field of
-   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+   * the <code>PatienceConfig</code> passed implicitly as the last parameter.
    * The interval to sleep between attempts is configured by the <code>interval</code> field of
-   * the <code>TimeoutConfig</code> passed implicitly as the last parameter.
+   * the <code>PatienceConfig</code> passed implicitly as the last parameter.
    * </p>
    *
    * @param fun the by-name parameter to repeatedly invoke
-   * @param config the <code>TimeoutConfig</code> object containing the <code>timeout</code> and
+   * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
    *          <code>interval</code> parameters
    * @return the result of invoking the <code>fun</code> by-name parameter, the first time it succeeds
    */
-  def eventually[T](fun: => T)(implicit config: TimeoutConfig): T = {
+  def eventually[T](fun: => T)(implicit config: PatienceConfig): T = {
     val startNanos = System.nanoTime
     def makeAValiantAttempt(): Either[Throwable, T] = {
       try {
