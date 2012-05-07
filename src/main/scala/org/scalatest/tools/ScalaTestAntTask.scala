@@ -237,16 +237,17 @@ class ScalaTestAntTask extends Task {
   private var parallel      = false
   private var haltonfailure = false
   private var fork          = false
+  private var spanScaleFactor = 1.0
 
   private var numthreads = 0
 
-  private val runpath      = new ListBuffer[String]
-  private val jvmArgs      = new ListBuffer[String]
-  private val suites       = new ListBuffer[String]
-  private val membersonlys = new ListBuffer[String]
-  private val wildcards    = new ListBuffer[String]
-  private val testNGSuites = new ListBuffer[String]
-  private val chosenStyles = new ListBuffer[String]
+  private val runpath          = new ListBuffer[String]
+  private val jvmArgs          = new ListBuffer[String]
+  private val suites           = new ListBuffer[String]
+  private val membersonlys     = new ListBuffer[String]
+  private val wildcards        = new ListBuffer[String]
+  private val testNGSuites     = new ListBuffer[String]
+  private val chosenStyles     = new ListBuffer[String]
 
   private val reporters  = new ListBuffer[ReporterElement]
   private val properties = new ListBuffer[NameValuePair]
@@ -267,6 +268,7 @@ class ScalaTestAntTask extends Task {
     addParallelArg(args)
     addSuffixesArg(args)
     addChosenStyles(args)
+    addSpanScaleFactorArg(args)
 
     val argsArray = args.toArray
 
@@ -334,6 +336,15 @@ class ScalaTestAntTask extends Task {
     if (parallel) {
       args += "-P" + (if (numthreads > 0) ("" + numthreads) else "")
     }
+  }
+  
+  //
+  // Add -F arg to args list if spanScaleFactor attribute was 
+  // specified for task
+  //
+  private def addSpanScaleFactorArg(args: ListBuffer[String]) {
+    args += "-F"
+    args += spanScaleFactor.toString
   }
 
   //
@@ -591,6 +602,13 @@ class ScalaTestAntTask extends Task {
    */
   def setParallel(parallel: Boolean) {
       this.parallel = parallel
+  }
+  
+  /**
+   * Sets value of the <code>spanScaleFactor</code> attribute.
+   */
+  def setSpanScaleFactor(spanScaleFactor: Double) {
+    this.spanScaleFactor = spanScaleFactor
   }
 
   /**
