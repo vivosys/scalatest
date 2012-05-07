@@ -48,9 +48,10 @@ import time.{Nanosecond, Span, Nanoseconds}
  *
  * <p>
  * However, because the default timeout is 150 milliseconds, the following invocation of
- * <code>eventually</code> would ultimately produce a <code>TestFailedException</code>:
+ * <code>eventually</code> would ultimately produce a <code>TestFailedDueToTimeoutException</code>:
  * </p>
  *
+ * <a name="secondExample"></a>
  * <pre class="stHighlight">
  * val xs = 1 to 125
  * val it = xs.iterator
@@ -60,12 +61,16 @@ import time.{Nanosecond, Span, Nanoseconds}
  * <p>
  * Assuming the default configuration parameters, a <code>timeout</code> of 150 milliseconds and an <code>interval</code> of 15 milliseconds,
  * were passed implicitly to <code>eventually</code>, the detail message of the thrown
- * <code>TestFailedException</code> would look like:
+ * <a href="../exceptions/TestFailedDueToTimeoutException.html"><code>TestFailedDueToTimeoutException</code></a> would look like:
  * </p>
  *
  * <p>
- * <code>The code passed to eventually never returned normally. Attempted 1 times, sleeping 15 milliseconds between each attempt. Last failure message:
- * 1 was not equal to 110.</code>
+ * <code>The code passed to eventually never returned normally. Attempted 2 times over 166.682 milliseconds. Last failure message: 2 was not equal to 110.</code>
+ * </p>
+ *
+ * <p>
+ * The cause of the thrown <code>TestFailedDueToTimeoutException</code> will be the exception most recently thrown by the block of code passed to eventually. (In
+ * the previous example, the cause would be the <code>TestFailedException</code> with the detail message <code>2 was not equal to 100</code>.)
  * </p>
  *
  * <a name="patienceConfig"></a><h2>Configuration of <code>eventually</code></h2>
@@ -113,8 +118,17 @@ import time.{Nanosecond, Span, Nanoseconds}
  * </table>
  *
  * <p>
+ * The default values of both timeout and interval are passed to the <code>scaled</code> method, inherited
+ * from <a href="ScaledTimeSpans.html"><code>ScaledTimeSpans</code></a>, so that the defaults can be scaled up
+ * or down together with other scaled time spans. See the documentation for trait <a href="ScaledTimeSpans.html"><code>ScaledTimeSpans</code></a>
+ * for more information.
+ * </p>
+ *
+ * <p>
  * The <code>eventually</code> methods of trait <code>Eventually</code> each take an <code>PatienceConfig</code>
- * object as an implicit parameter. This object provides values for the two configuration parameters. Trait
+ * object as an implicit parameter. This object provides values for the two configuration parameters. (These configuration parameters
+ * are called "patience" because they determine how <em>patient</em> tests will be with asynchronous operations: how long
+ * they will tolerate failures before giving up and how long they will wait before checking again after a failure.) Trait
  * <code>Eventually</code> provides an implicit <code>val</code> named <code>patienceConfig</code> with each
  * configuration parameter set to its default value. 
  * If you want to set one or more configuration parameters to a different value for all invocations of
@@ -189,6 +203,42 @@ import time.{Nanosecond, Span, Nanoseconds}
  * The previous code says more clearly that the timeout will be five seconds, unless scaled higher or lower by the <code>scaled</code> method.
  * </p>
  *
+ * <a name="simpleBackoff"></a><h2>Simple backoff algorithm</h2>
+ *
+ * <p>
+ * The <code>eventually</code> methods employ a very simple backoff algorithm to try and maximize the speed of tests. If an asynchronous operation
+ * completes quickly, a smaller interval will yield a faster test. But if an asynchronous operation takes a while, a small interval will keep the CPU
+ * busy repeatedly checking and rechecking a not-ready operation, to some extent taking CPU cycles away from other processes that could proceed. To
+ * strike the right balance between these design tradeoffs, the <code>eventually</code> methods will check more frequently during the initial interval.
+ * </p>
+ *
+ * </p>
+ * Rather than sleeping an entire interval if the initial attempt fails, <code>eventually</code> will only sleep 1/10 of the configured interval. It
+ * will continue sleeping only 1/10 of the configured interval until the configured interval has passed, after which it sleeps the configured interval
+ * between attempts. Here's an example in which the timeout is set equal to the interval:
+ * </p>
+ *
+ * <pre class="stHighlight">
+ * val xs = 1 to 125
+ * val it = xs.iterator
+ * eventually(timeout(100 milliseconds), interval(100 milliseconds)) { it.next should be (110) }
+ * </pre>
+ *
+ * <p>
+ * Even though this call to <code>eventually</code> will time out after only one interval, approximately, the error message will likely report that more
+ * than one (and less than ten) attempts were made:
+ * </p>
+ *
+ *<p>
+ * <code>The code passed to eventually never returned normally. Attempted 6 times over 100.485 milliseconds. Last failure message: 6 was not equal to 110.</code>
+ *</p>
+ *
+ * <p>
+ * Note that if the initial attempt takes longer than the configured interval to complete, <code>eventually</code> will never sleep for 
+ * a 1/10 interval. You can observe this behavior in the <a href="#secondExample">second example</a> above in which the first statement in the block of code passed to <code>eventually</code>
+ * was <code>Thread.sleep(50)</code>. 
+ * </p>
+ *
  * <a name="patienceConfig"></a><h2>Usage note: <code>Eventually</code> intended primarily for integration testing</h2>
  *
  * <p>
@@ -205,7 +255,7 @@ import time.{Nanosecond, Span, Nanoseconds}
  * </p>
  *
  * <p>
- * When you are using <code>Eventually</code> for integration testing, on the other hand, the default timeout and interval may be too small. A
+ * When you are using <code>Eventually</code> for integration testing, therefore, the default timeout and interval may be too small. A
  * good way to override them is by mixing in trait <a href="IntegrationPatience.html"><code>IntegrationPatience</code></a> or a similar trait of your
  * own making. Here's an example:
  * </p>
