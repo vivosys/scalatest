@@ -490,6 +490,8 @@ object Runner {
 
   private val RUNNER_JFRAME_START_X: Int = 150
   private val RUNNER_JFRAME_START_Y: Int = 100
+  
+  @volatile private[scalatest] var spanScaleFactor: Double = 1.0
 
   //                     TO
   // We always include a PassFailReporter on runs in order to determine
@@ -613,7 +615,8 @@ object Runner {
       wildcardArgsList,
       testNGArgsList,
       suffixes, 
-      chosenStyles
+      chosenStyles, 
+      spanScaleFactors
     ) = parseArgs(args)
 
     val fullReporterConfigurations: ReporterConfigurations =
@@ -635,6 +638,7 @@ object Runner {
     val wildcardList: List[String] = parseSuiteArgsIntoNameStrings(wildcardArgsList, "-w")
     val testNGList: List[String] = parseSuiteArgsIntoNameStrings(testNGArgsList, "-b")
     val chosenStyleSet: Set[String] = parseChosenStylesIntoChosenStyleSet(chosenStyles, "-y")
+    spanScaleFactor = parseSpanScaleFactor(spanScaleFactors, "-F")
 
     val filter = Filter(if (tagsToInclude.isEmpty) None else Some(tagsToInclude), tagsToExclude)
 
@@ -721,7 +725,7 @@ object Runner {
       // Style advice
       // If it is multiple else ifs, then make it symetrical. If one needs an open curly brace, put it on all
       // If an if just has another if, a compound statement, go ahead and put the open curly brace's around the outer one
-      if (s.startsWith("-p") || s.startsWith("-R") || s.startsWith("-f") || s.startsWith("-u") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-C") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-l") || s.startsWith("-q") || s.startsWith("-Q") || s.startsWith("-s") || s.startsWith("-j") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-b") || s.startsWith("-y")) {
+      if (s.startsWith("-p") || s.startsWith("-R") || s.startsWith("-f") || s.startsWith("-u") || s.startsWith("-h") || s.startsWith("-r") || s.startsWith("-C") || s.startsWith("-n") || s.startsWith("-x") || s.startsWith("-l") || s.startsWith("-q") || s.startsWith("-Q") || s.startsWith("-s") || s.startsWith("-j") || s.startsWith("-m") || s.startsWith("-w") || s.startsWith("-b") || s.startsWith("-y") || s.startsWith("-F")) {
         if (it.hasNext)
           it.next
       }
@@ -781,6 +785,7 @@ object Runner {
     val testNGXMLFiles = new ListBuffer[String]()
     val suffixes = new ListBuffer[String]()
     val chosenStyles = new ListBuffer[String]()
+    val spanScaleFactor = new ListBuffer[String]()
 
     val it = args.iterator
     while (it.hasNext) {
@@ -903,6 +908,11 @@ object Runner {
         if (it.hasNext)
           chosenStyles += it.next()
       }
+      else if (s.startsWith("-F")) {
+        spanScaleFactor += s
+        if (it.hasNext)
+          spanScaleFactor += it.next()
+      }
       else {
         throw new IllegalArgumentException("Unrecognized argument: " + s)
       }
@@ -921,7 +931,8 @@ object Runner {
       wildcard.toList,
       testNGXMLFiles.toList,
       genSuffixesPattern(suffixes.toList), 
-      chosenStyles.toList
+      chosenStyles.toList, 
+      spanScaleFactor.toList
     )
   }
 
@@ -1250,6 +1261,34 @@ object Runner {
         throw new IllegalArgumentException("Last element must be a style name, not a " + dashArg + ".")
     }
     lb.toSet
+  }
+  
+  private[scalatest] def parseSpanScaleFactor(args: List[String], dashArg: String) = {
+    val it = args.iterator
+    val lb = new ListBuffer[Double]()
+    while (it.hasNext) {
+      val dash = it.next
+      if (dash != dashArg)
+        throw new IllegalArgumentException("Every other element, starting with the first, must be " + dashArg)
+      if (it.hasNext) {
+        val spanString = it.next
+        try {
+          lb += spanString.toDouble
+        }
+        catch {
+          case e: NumberFormatException =>
+            throw new IllegalArgumentException(dashArg + " must be followed by a number, but '" + spanString + "' is not a number.")
+        }
+      }
+      else
+        throw new IllegalArgumentException("Last element must be a number, not a " + dashArg + ".")
+    }
+    if (lb.size == 0)
+      1.0
+    else if (lb.size == 1)
+      lb(0)
+    else
+      throw new IllegalArgumentException("Only one -F can be specified.")
   }
 
   //
