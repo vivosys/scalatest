@@ -27,7 +27,7 @@ import time.{Nanoseconds, Second, Span}
  *
  * <p>
  * Trait <code>AsyncAssertions</code> provides a <code>Waiter</code> class that you can use to orchestrate the inter-thread
- * communication required to perform assertions outside the main test thread, and means to configure it.
+ * communication required to perform assertions outside the main test thread, and a means to configure it.
  * </p>
  *
  * <p>
@@ -49,28 +49,28 @@ import time.{Nanoseconds, Second, Span}
  * <p>
  * The <code>await</code> call will block until it either receives a report of a failed assertion from a different thread, at which
  * point it will complete abruptly with the same exception, or until it is <em>dismissed</em> by a different thread (or threads), at
- * which point it will return normally. You can optionally specify a timeout, interval (the time <code>await</code> sleeps between checks), and/or a number
+ * which point it will return normally. You can optionally specify a timeout and/or a number
  * of dismissals to wait for. Here's an example:
  * </p>
  *
  * <pre class="stHighlight">
  * import org.scalatest.time.SpanSugar._
  *
- * w.await(timeout(10 millis), dismissals(2))
+ * w.await(timeout(300 millis), dismissals(2))
  * </pre>
  *
  * <p>
- * The default value for <code>timeout</code>, provided via an implicit <code>PatienceConfig</code> parameter, is 1 second. The default value for
+ * The default value for <code>timeout</code>, provided via an implicit <code>PatienceConfig</code> parameter, is 150 milliseconds. The default value for
  * <code>dismissals</code> is 1. The <code>await</code> method will block until either it is dismissed a sufficient number of times by other threads or
  * an assertion fails in another thread. Thus if you just want to perform assertions in just one other thread, only that thread will be
  * performing a dismissal, so you can use the default value of 1 for <code>dismissals</code>.
  * </p>
  *
  * <p>
- * <code>Waiter</code> contains several overloaded forms of <code>await</code>, most of which take an implicit
+ * <code>Waiter</code> contains four overloaded forms of <code>await</code>, two of which take an implicit
  * <code>PatienceConfig</code> parameter. To change the default timeout configuration, override or hide
  * (if you imported the members of <code>AsyncAssertions</code> companion object instead of mixing in the
- * trait) <code>timeoutConfig</code> with a new one that returns your desired configuration.
+ * trait) <code>patienceConfig</code> with a new one that returns your desired configuration.
  * </p>
  *
  * <p>
@@ -195,28 +195,28 @@ trait AsyncAssertions extends PatienceConfiguration {
    * <p>
    * The <code>await</code> call will block until it either receives a report of a failed assertion from a different thread, at which
    * point it will complete abruptly with the same exception, or until it is <em>dismissed</em> by a different thread (or threads), at
-   * which point it will return normally. You can optionally specify a timeout, interval (the time <code>await</code> sleeps between checks), and/or a number
+   * which point it will return normally. You can optionally specify a timeout and/or a number
    * of dismissals to wait for. Here's an example:
    * </p>
    *
    * <pre class="stHighlight">
    * import org.scalatest.time.SpanSugar._
    *
-   * w.await(timeout(10 millis), dismissals(2))
+   * w.await(timeout(300 millis), dismissals(2))
    * </pre>
    *
    * <p>
-   * The default value for <code>timeout</code>, provided via an implicit <code>PatienceConfig</code> parameter, is 1 second. The default value for
+   * The default value for <code>timeout</code>, provided via an implicit <code>PatienceConfig</code> parameter, is 150 milliseconds. The default value for
    * <code>dismissals</code> is 1. The <code>await</code> method will block until either it is dismissed a sufficient number of times by other threads or
    * an assertion fails in another thread. Thus if you just want to perform assertions in just one other thread, only that thread will be
    * performing a dismissal, so you can use the default value of 1 for <code>dismissals</code>.
    * </p>
    *
    * <p>
-   * <code>Waiter</code> contains several overloaded forms of <code>await</code>, most of which take an implicit
+   * <code>Waiter</code> contains four overloaded forms of <code>await</code>, two of which take an implicit
    * <code>PatienceConfig</code> parameter. To change the default timeout configuration, override or hide
    * (if you imported the members of <code>AsyncAssertions</code> companion object instead of mixing in the
-   * trait) <code>timeoutConfig</code> with a new one that returns your desired configuration.
+   * trait) <code>patienceConfig</code> with a new one that returns your desired configuration.
    * </p>
    *
    * <p>
@@ -514,7 +514,7 @@ trait AsyncAssertions extends PatienceConfiguration {
      * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
      *          <code>interval</code> parameters
      */
-    def await[T](timeout: Timeout, dismissals: Dismissals)(implicit config: PatienceConfig) {
+    def await[T](timeout: Timeout, dismissals: Dismissals) {
       awaitImpl(timeout.value, dismissals.value)
     }
 
