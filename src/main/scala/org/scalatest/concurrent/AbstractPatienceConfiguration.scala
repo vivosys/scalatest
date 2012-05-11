@@ -4,8 +4,8 @@ import org.scalatest.time.{Span, Millis}
 
 
 /**
- * Trait that defines an abstract <code>patienceConfig</code> method that is implemented in <code>PatienceConfiguration</code> and can
- * be overriden in stackable modification traits such as <code>IntegrationPatience</code>.
+ * Trait that defines an abstract <code>patienceConfig</code> method that is implemented in <a href="PatienceConfiguration.html"><code>PatienceConfiguration</code></a> and can
+ * be overriden in stackable modification traits such as <a href="IntegrationPatience.html"><code>IntegrationPatience</code></a>.
  *
  * <p>
  * The main purpose of <code>AbstractPatienceConfiguration</code> is to differentiate core <code>PatienceConfiguration</code>
@@ -39,13 +39,15 @@ import org.scalatest.time.{Span, Millis}
 trait AbstractPatienceConfiguration extends ScaledTimeSpans {
 
   /**
-   * Configuration object for traits <code>Eventually</code> and <code>AsyncAssertions</code>.
+   * Configuration object for asynchronous constructs, such as those provided by traits <a href="Eventually.html"><code>Eventually</code></a> and
+   * <a href="AsyncAssertions.html"><code>AsyncAssertions</code></a>.
    *
    * <p>
    * The default values for the parameters are:
    * </p>
    *
    * <table style="border-collapse: collapse; border: 1px solid black">
+ * <tr><th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black"><strong>Configuration Parameter</strong></th><th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black"><strong>Default Value</strong></th></tr>
    * <tr>
    * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
    * <code>timeout</code>
@@ -64,9 +66,9 @@ trait AbstractPatienceConfiguration extends ScaledTimeSpans {
    * </tr>
    * </table>
    *
-   * @param timeout the maximum amount of time to retry before giving up and throwing
+   * @param timeout the maximum amount of time to wait for an asynchronous operation to complete before giving up and throwing
    *   <code>TestFailedException</code>.
-   * @param interval the amount of time to sleep between each attempt
+   * @param interval the amount of time to sleep between each check of the status of an asynchronous operation when polling
    *
    * @author Bill Venners
    * @author Chua Chee Seng

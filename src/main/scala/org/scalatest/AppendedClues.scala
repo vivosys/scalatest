@@ -33,7 +33,6 @@ import exceptions.ModifiableMessage
  * </pre>
  *
  * <p>
- // TODO: Check for null
  * The above expression will yield the failure message:
  * </p>
  *
@@ -102,6 +101,7 @@ import exceptions.ModifiableMessage
  */
 trait AppendedClues { // TODO, can't put a comma. Write tests to not put the space if a ,, ., or ; is the first char
 
+ // TODO: Check for null
 // TODO: Also, make sure withClue returns whatever is inside there. I think I should do this for the prepended
 // withClue also.
   /**

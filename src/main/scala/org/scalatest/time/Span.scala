@@ -388,6 +388,23 @@ final class Span private (totNanos: Long, lengthString: String, unitsResource: S
    */
   lazy val nanosPart: Int = (totalNanos % 1000000).toInt
 
+  /**
+   * Returns a <code>Span</code> representing this <code>Span</code> <em>scaled</em> by the passed factor.
+   *
+   * <p>
+   * The passed <code>factor</code> can be any positive number or zero, including fractional numbers. A number
+   * greater than one will scale the <code>Span</code> up to a larger value. A fractional number will scale it
+   * down to a smaller value. A factor of 1.0 will cause the exact same <code>Span</code> to be returned. A
+   * factor of zero will cause <code>Span.ZeroLength</code> to be returned.
+   * </p>
+   *
+   * <p>
+   * If overflow occurs, <code>Span.Max</code> will be returned. If underflow occurs, <code>Span.ZeroLength</code>
+   * will be returned.
+   * </p>
+   *
+   * @throws IllegalArgumentException if the passed value is less than zero
+   */
   def scaledBy(factor: Double) = {
     require(factor >= 0.0, "factor was less than zero")
     factor match {

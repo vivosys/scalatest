@@ -33,8 +33,39 @@ import time.Span
  * The default values for timeout and interval provided by trait <code>PatienceConfiguration</code> are tuned for unit testing,
  * where running tests as fast as
  * possible is a high priority and subsystems requiring asynchronous operations are therefore often replaced
- * by mocks. Values more appropriate to integration testing, where asynchronous operations tend to take longer because the tests are run
+ * by mocks. This table shows the default values:
+ * </p>
+ *
+ * <table style="border-collapse: collapse; border: 1px solid black">
+ * <tr><th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black"><strong>Configuration Parameter</strong></th><th style="background-color: #CCCCCC; border-width: 1px; padding: 3px; text-align: center; border: 1px solid black"><strong>Default Value</strong></th></tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
+ * <code>timeout</code>
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
+ * <code>scaled(150 milliseconds)</code>
+ * </td>
+ * </tr>
+ * <tr>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
+ * <code>interval</code>
+ * </td>
+ * <td style="border-width: 1px; padding: 3px; border: 1px solid black; text-align: center">
+ * <code>scaled(15 milliseconds)</code>
+ * </td>
+ * </tr>
+ * </table>
+ *
+ * <p>
+ * Values more appropriate to integration testing, where asynchronous operations tend to take longer because the tests are run
  * against the actual subsytems (not mocks), can be obtained by mixing in trait <a href="IntegrationPatience.html"><code>IntegrationPatience</code></a>.
+ * </p>
+ *
+ * <p>
+ * The default values of both timeout and interval are passed to the <code>scaled</code> method, inherited
+ * from <a href="ScaledTimeSpans.html"><code>ScaledTimeSpans</code></a>, so that the defaults can be scaled up
+ * or down together with other scaled time spans. See the documentation for trait <a href="ScaledTimeSpans.html"><code>ScaledTimeSpans</code></a>
+ * for more information.
  * </p>
  *
  * <p>
