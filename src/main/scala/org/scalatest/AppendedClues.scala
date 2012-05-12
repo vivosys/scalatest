@@ -99,7 +99,7 @@ import exceptions.ModifiableMessage
  *
  * @author Bill Venners
  */
-trait AppendedClues { // TODO, can't put a comma. Write tests to not put the space if a ,, ., or ; is the first char
+trait AppendedClues {
 
  // TODO: Check for null
 // TODO: Also, make sure withClue returns whatever is inside there. I think I should do this for the prepended
@@ -144,7 +144,9 @@ trait AppendedClues { // TODO, can't put a comma. Write tests to not put the spa
       def append(currentMessage: Option[String]) =
         currentMessage match {
           case Some(msg) =>
-            if (clue.toString.head.isWhitespace)
+            // clue.toString.head is guaranteed to work, because append() only called if clue.toString != ""
+            val firstChar = clue.toString.head
+            if (firstChar.isWhitespace || firstChar == '.' || firstChar == ',' || firstChar == ';')
               Some(msg + clue.toString)
             else
               Some(msg + " " + clue.toString)
@@ -155,7 +157,7 @@ trait AppendedClues { // TODO, can't put a comma. Write tests to not put the spa
       }
       catch {
         case e: ModifiableMessage[_] =>
-          if (clue != "")
+          if (clue.toString != "")
             throw e.modifyMessage(append)
           else
             throw e

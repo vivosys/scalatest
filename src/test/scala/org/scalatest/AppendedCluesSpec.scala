@@ -20,7 +20,7 @@ import org.scalatest.junit.JUnitTestFailedError
 import org.scalatest.exceptions.TestFailedException
 
 // TODO: Test with imported AppendedClues
-class AppendedCluesSpec extends FlatSpec with ShouldMatchers with AppendedClues {
+class AppendedCluesSpec extends FlatSpec with ShouldMatchers with AppendedClues with SeveredStackTraces {
 
   it should "return the new exception with the clue string appended, separated by a space char if passed a function that does that" in {
     val tfe = new TestFailedException("message", 3)
@@ -103,7 +103,7 @@ class AppendedCluesSpec extends FlatSpec with ShouldMatchers with AppendedClues 
     caught.message.get should equal ("message\nclue")
   }
 
-  ignore should "given a non-empty clue string preceded by a period(.), throw a new instance of the caught TFE exception that has all fields the same except an appended clue string (preceded by no extra space)" in {
+  it should "given a non-empty clue string preceded by a period (.), throw a new instance of the caught TFE exception that has all fields the same except an appended clue string (preceded by no extra space)" in {
     val tfe = new TestFailedException("message", 3)
     val caught = intercept[TestFailedException] {
       { failWith(tfe) } withClue ". clue" // has an end of line character
@@ -113,6 +113,38 @@ class AppendedCluesSpec extends FlatSpec with ShouldMatchers with AppendedClues 
     caught.message.get should equal ("message. clue")
   }
 
+  it should "given a non-empty clue string preceded by a comma (,), throw a new instance of the caught TFE exception that has all fields the same except an appended clue string (preceded by no extra space)" in {
+    val tfe = new TestFailedException("message", 3)
+    val caught = intercept[TestFailedException] {
+      { failWith(tfe) } withClue ", clue" // has an end of line character
+    }
+    caught should not be theSameInstanceAs (tfe)
+    caught.message should be ('defined)
+    caught.message.get should equal ("message, clue")
+  }
+
+  it should "given a non-empty clue string preceded by a semicolon (;), throw a new instance of the caught TFE exception that has all fields the same except an appended clue string (preceded by no extra space)" in {
+    val tfe = new TestFailedException("message", 3)
+    val caught = intercept[TestFailedException] {
+      { failWith(tfe) } withClue ", clue" // has an end of line character
+    }
+    caught should not be theSameInstanceAs (tfe)
+    caught.message should be ('defined)
+    caught.message.get should equal ("message, clue")
+  }
+
+  it should "given a non-string clue object with an empty clue string, rethrow the same JUTFE exception" in {
+    class VeryUnlikely {
+      override def toString = ""
+    }
+    val jutfe = new JUnitTestFailedError("before", 3)
+    val caught = intercept[JUnitTestFailedError] {
+      { failWith(jutfe) } withClue (new VeryUnlikely)
+    }
+    caught should be theSameInstanceAs (jutfe)
+  }
+
+  // TODO: Use a table. This one is only for JUTFE
   it should "given an empty clue string, rethrow the same JUTFE exception" in {
     val jutfe = new JUnitTestFailedError("before", 3)
     val caught = intercept[JUnitTestFailedError] {
