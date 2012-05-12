@@ -101,9 +101,6 @@ import exceptions.ModifiableMessage
  */
 trait AppendedClues {
 
- // TODO: Check for null
-// TODO: Also, make sure withClue returns whatever is inside there. I think I should do this for the prepended
-// withClue also.
   /**
    * Class that provides a <code>withClue</code> method that appends clue strings to any
    * <a href="ModifiableMessage.html"><code>ModifiableMessage</code></a> exception
@@ -139,8 +136,12 @@ trait AppendedClues {
      * <pre>
      * 2 did not equal 3, not even for very large values of 1
      * </pre>
+     *
+     * @throws NullPointerException if the passed <code>clue</code> is <code>null</code>
      */
     def withClue(clue: Any): T = {
+      if (clue == null)
+        throw new NullPointerException("clue was null")
       def append(currentMessage: Option[String]) =
         currentMessage match {
           case Some(msg) =>
