@@ -408,10 +408,9 @@ trait AsyncAssertions extends PatienceConfiguration {
      * of time the thread that calls <code>await</code> will sleep between "checks."
      * </p>
      *
-     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
-     *          <code>interval</code> parameters
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> parameter
      */
-    def await[T]()(implicit config: PatienceConfig) {
+    def await()(implicit config: PatienceConfig) {
       awaitImpl(config.timeout)
     }
 
@@ -443,7 +442,7 @@ trait AsyncAssertions extends PatienceConfiguration {
      *
      * @param timeout:  the <code>Timeout</code> configuration parameter containing the specified timeout
      */
-    def await[T](timeout: Timeout) {
+    def await(timeout: Timeout) {
       awaitImpl(timeout.value)
     }
 
@@ -475,10 +474,9 @@ trait AsyncAssertions extends PatienceConfiguration {
      *
      * @param dismissals:  the <code>Dismissals</code> configuration parameter containing the number of
      *    dismissals for which to wait
-     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
-     *          <code>interval</code> parameters
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> parameter
      */
-    def await[T](dismissals: Dismissals)(implicit config: PatienceConfig) {
+    def await(dismissals: Dismissals)(implicit config: PatienceConfig) {
       awaitImpl(config.timeout, dismissals.value)
     }
 
@@ -511,10 +509,8 @@ trait AsyncAssertions extends PatienceConfiguration {
      * @param timeout:  the <code>Timeout</code> configuration parameter containing the specified timeout
      * @param dismissals:  the <code>Dismissals</code> configuration parameter containing the number of
      *    dismissals for which to wait
-     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
-     *          <code>interval</code> parameters
      */
-    def await[T](timeout: Timeout, dismissals: Dismissals) {
+    def await(timeout: Timeout, dismissals: Dismissals) {
       awaitImpl(timeout.value, dismissals.value)
     }
 
