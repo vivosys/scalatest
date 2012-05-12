@@ -21,7 +21,7 @@ import Thread.State._
 import java.util.concurrent.atomic.AtomicBoolean
 import org.scalatest.exceptions.NotAllowedException
 
-class ConductorSuite extends FunSuite with ShouldMatchers with SharedHelpers {
+class ConductorSuite extends FunSuite with ShouldMatchers with SharedHelpers with SeveredStackTraces {
 
   val baseLineNumber = 26
 
@@ -336,5 +336,37 @@ class ConductorSuite extends FunSuite with ShouldMatchers with SharedHelpers {
         conduct(10, 1)
       }
     caught.getMessage should be ("Test timed out because threads existed that were runnable while no progress was made (the beat did not advance) for 1 seconds.")
+  }
+
+  test("ConductorFixture is a stackable trait that delegates test function execution to withFixture(NoArgTest)") {
+    var calledSuperWithFixtureNoArgTest = false
+    class MySpec extends fixture.FunSuite with ConductorFixture {
+      override def withFixture(test: NoArgTest) {
+        calledSuperWithFixtureNoArgTest = true
+        super.withFixture(test)
+      }
+      test("one") { c => }
+    }
+
+    val a = new MySpec
+    a.run(None, SilentReporter,new Stopper {}, Filter(), Map.empty, None, new Tracker)
+    calledSuperWithFixtureNoArgTest should be (true)
+  }
+
+  test("ConductorMethods is a stackable trait that delegates test function execution to withFixture(NoArgTest)") {
+    var calledSuperWithFixtureNoArgTest = false
+    trait SuperTrait extends AbstractSuite { this: Suite =>
+      abstract override def withFixture(test: NoArgTest) {
+        calledSuperWithFixtureNoArgTest = true
+        super.withFixture(test)
+      }
+    }
+    class MySpec extends FunSuite with SuperTrait with ConductorMethods {
+      test("one") {}
+    }
+
+    val a = new MySpec
+    a.run(None, SilentReporter,new Stopper {}, Filter(), Map.empty, None, new Tracker)
+    calledSuperWithFixtureNoArgTest should be (true)
   }
 }

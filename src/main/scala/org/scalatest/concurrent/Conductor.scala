@@ -16,7 +16,6 @@
 package org.scalatest.concurrent
 
 import org.scalatest._
-import Thread.State._
 import PimpedThreadGroup._
 import _root_.java.util.concurrent._
 import _root_.java.util.concurrent.atomic.AtomicReference
@@ -248,6 +247,7 @@ import org.scalatest.exceptions.NotAllowedException
  * @author Josh Cough
  * @author Bill Venners
  */
+@deprecated("org.scalatest.concurrent.Conductor has been deprecated and will be removed in a future version of ScalaTest. Please mix in trait Conductors, which now defines Conductor, instead of using Conductor directly.")
 final class Conductor {
 
   /**
