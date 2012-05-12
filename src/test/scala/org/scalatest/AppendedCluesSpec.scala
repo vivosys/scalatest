@@ -73,7 +73,7 @@ class AppendedCluesSpec extends FlatSpec with ShouldMatchers with AppendedClues 
     caught.message.get should equal ("message" + white)
   }
 
-  it should "given a non-empty clue string with no trailing white space, throw a new instance of the caught TFE exception that has all fields the same except a appended clue string preceded by an extra space" in {
+  it should "given a non-empty clue string with no trailing white space, throw a new instance of the caught TFE exception that has all fields the same except an appended clue string preceded by an extra space" in {
     val tfe = new TestFailedException("message", 3)
     val caught = intercept[TestFailedException] {
       { failWith(tfe) } withClue "clue"
@@ -101,6 +101,16 @@ class AppendedCluesSpec extends FlatSpec with ShouldMatchers with AppendedClues 
     caught should not be theSameInstanceAs (tfe)
     caught.message should be ('defined)
     caught.message.get should equal ("message\nclue")
+  }
+
+  ignore should "given a non-empty clue string preceded by a period(.), throw a new instance of the caught TFE exception that has all fields the same except an appended clue string (preceded by no extra space)" in {
+    val tfe = new TestFailedException("message", 3)
+    val caught = intercept[TestFailedException] {
+      { failWith(tfe) } withClue ". clue" // has an end of line character
+    }
+    caught should not be theSameInstanceAs (tfe)
+    caught.message should be ('defined)
+    caught.message.get should equal ("message. clue")
   }
 
   it should "given an empty clue string, rethrow the same JUTFE exception" in {
