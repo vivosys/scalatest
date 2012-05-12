@@ -21,6 +21,7 @@ import Thread.State._
 import java.util.concurrent.atomic.AtomicBoolean
 import org.scalatest.exceptions.NotAllowedException
 import org.scalatest.SharedHelpers.thisLineNumber
+import time.{Millis, Span}
 
 class ConductorSuite extends FunSuite with ShouldMatchers with Conductors with SharedHelpers with SeveredStackTraces {
 
@@ -367,5 +368,81 @@ class ConductorSuite extends FunSuite with ShouldMatchers with Conductors with S
     val a = new MySpec
     a.run(None, SilentReporter,new Stopper {}, Filter(), Map.empty, None, new Tracker)
     calledSuperWithFixtureNoArgTest should be (true)
+  }
+
+  // The next 3 tests just make sure things work when calling the other overloaded conduct methods
+  test("first exception thrown is reported when calling conduct(timeout, interval)") {
+    val e = new RuntimeException("howdy")
+    class MySuite extends FunSuite {
+      test("this will fail") {
+        val conductor = new Conductor
+        import conductor._
+        thread {
+          waitForBeat(1)
+        }
+        thread {
+          throw e
+          ()
+        }
+        conductor.conduct(timeout(Span(300, Millis)), interval(Span(10, Millis)))
+      }
+    }
+    val a = new MySuite
+    val rep = new EventRecordingReporter
+    a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
+    val tf = rep.testFailedEventsReceived
+    tf.size should be === 1
+    tf.head.throwable should be ('defined)
+    tf.head.throwable.get should be theSameInstanceAs e
+  }
+
+  test("first exception thrown is reported when calling conduct(interval)") {
+    val e = new RuntimeException("howdy")
+    class MySuite extends FunSuite {
+      test("this will fail") {
+        val conductor = new Conductor
+        import conductor._
+        thread {
+          waitForBeat(1)
+        }
+        thread {
+          throw e
+          ()
+        }
+        conductor.conduct(interval(Span(10, Millis)))
+      }
+    }
+    val a = new MySuite
+    val rep = new EventRecordingReporter
+    a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
+    val tf = rep.testFailedEventsReceived
+    tf.size should be === 1
+    tf.head.throwable should be ('defined)
+    tf.head.throwable.get should be theSameInstanceAs e
+  }
+
+  test("first exception thrown is reported when calling conduct(timeout)") {
+    val e = new RuntimeException("howdy")
+    class MySuite extends FunSuite {
+      test("this will fail") {
+        val conductor = new Conductor
+        import conductor._
+        thread {
+          waitForBeat(1)
+        }
+        thread {
+          throw e
+          ()
+        }
+        conductor.conduct(timeout(Span(300, Millis)))
+      }
+    }
+    val a = new MySuite
+    val rep = new EventRecordingReporter
+    a.run(None, rep, new Stopper {}, Filter(), Map(), None, new Tracker())
+    val tf = rep.testFailedEventsReceived
+    tf.size should be === 1
+    tf.head.throwable should be ('defined)
+    tf.head.throwable.get should be theSameInstanceAs e
   }
 }
