@@ -817,7 +817,7 @@ final class Conductor {
      * Stop the test due to a timeout.
      */
     private def timeout() {
-      val errorMessage = Resources("testTimedOut", maxRunTime.toString)
+      val errorMessage = Resources("testTimedOutDEPRECATED", maxRunTime.toString)
       // The mainThread is likely joined to some test thread, so wake it up. It will look and
       // notice that the firstExceptionThrown is no longer empty, and will stop all live test threads,
       // then rethrow the rirst exception thrown.
@@ -832,7 +832,7 @@ final class Conductor {
       // Should never get to >= before ==, but just playing it safe
       if (deadlockCount >= MaxDeadlockDetectionsBeforeDeadlock) {
         // val errorMessage = "Apparent Deadlock! Threads waiting 50 clock periods (" + (clockPeriod * 50) + "ms)"
-         val errorMessage = Resources("suspectedDeadlock", MaxDeadlockDetectionsBeforeDeadlock.toString, (clockPeriod * MaxDeadlockDetectionsBeforeDeadlock).toString)
+         val errorMessage = Resources("suspectedDeadlockDEPRECATED", MaxDeadlockDetectionsBeforeDeadlock.toString, (clockPeriod * MaxDeadlockDetectionsBeforeDeadlock).toString)
         firstExceptionThrown offer new RuntimeException(errorMessage)
 
         // The mainThread is likely joined to some test thread, so wake it up. It will look and
