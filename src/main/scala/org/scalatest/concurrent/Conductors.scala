@@ -701,16 +701,70 @@ trait Conductors extends PatienceConfiguration {
     private val greenLightForTestThreads = new CountDownLatch(1)
 
     /**
-     * Conducts a multi-threaded test with run limit and clock interval taken
-     * from the passed implicit <code>PatienceConfig</code> object.
+     * Conducts a multi-threaded test using the configured maximum allowed time between beats
+     * (the <code>timeout</code>) and the configured time to sleep between checks (the <code>interval</code>).
+     *
+     * @param config the <code>PatienceConfig</code> object containing the <code>timeout</code> and
+     *          <code>interval</code> parameters used to configure the multi-threaded test
      */
     def conduct()(implicit config: PatienceConfig) {
-/*
-      val DefaultClockPeriod = 10 // milliseconds
-      val DefaultRunLimit = 5 // seconds
-      conduct(DefaultClockPeriod, DefaultRunLimit)
-*/
-      conductImpl(config.timeout,  config.interval)
+      conductImpl(config.timeout, config.interval)
+    }
+
+    /**
+     * Conducts a multi-threaded test using the configured maximum allowed time between beats
+     * (the <code>timeout</code>) and the configured time to sleep between checks (the <code>interval</code>).
+     *
+     * <p>
+     * The maximum amount of time allowed between successive beats is configured by the value contained in the passed
+     * <code>timeout</code> parameter.
+     * The interval to sleep between successive checks for progress is configured by the value contained in the passed
+     * <code>interval</code> parameter.
+     * </p>
+     *
+     * @param timeout the <code>Timeout</code> configuration parameter
+     * @param interval the <code>Interval</code> configuration parameter
+     */
+    def conduct(timeout: Timeout, interval: Interval) {
+      conductImpl(timeout.value, interval. value)
+    }
+
+    /**
+     * Conducts a multi-threaded test using the configured maximum allowed time between beats
+     * (the <code>timeout</code>) and the configured time to sleep between checks (the <code>interval</code>).
+     *
+     * <p>
+     * The maximum amount of time allowed between successive beats is configured by the value contained in the passed
+     * <code>timeout</code> parameter.
+     * The interval to sleep between successive checks for progress is configured by  by the <code>interval</code> field of
+     * the <code>PatienceConfig</code> passed implicitly as the last parameter.
+     * </p>
+     *
+     * @param timeout the <code>Timeout</code> configuration parameter
+     * @param config the <code>PatienceConfig</code> object containing the (unused) <code>timeout</code> and
+     *          (used) <code>interval</code> parameters
+     */
+    def conduct(timeout: Timeout)(implicit config: PatienceConfig) {
+      conductImpl(timeout.value, config.interval)
+    }
+
+    /**
+     * Conducts a multi-threaded test using the configured maximum allowed time between beats
+     * (the <code>timeout</code>) and the configured time to sleep between checks (the <code>interval</code>).
+     *
+     * <p>
+     * The maximum amount of time allowed between successive beats is configured by the <code>timeout</code> field of
+     * the <code>PatienceConfig</code> passed implicitly as the last parameter.
+     * The interval to sleep between successive checks for progress is configured by the value contained in the passed
+     * <code>interval</code> parameter.
+     * </p>
+     *
+     * @param interval the <code>Interval</code> configuration parameter
+     * @param config the <code>PatienceConfig</code> object containing the (used) <code>timeout</code> and
+     *          (unused) <code>interval</code> parameters
+     */
+    def conduct(interval: Interval)(implicit config: PatienceConfig) {
+      conductImpl(config.timeout, interval.value)
     }
 
     private val currentState: AtomicReference[ConductorState] = new AtomicReference(Setup)
@@ -730,7 +784,7 @@ trait Conductors extends PatienceConfiguration {
     def conductingHasBegun: Boolean = currentState.get.testWasStarted
 
     /**
-     * Conducts a multithreaded test with the specified clock period (in milliseconds)
+     * Conducts a multi-threaded test with the specified clock period (in milliseconds)
      * and timeout (in seconds).
      *
      * <p>
@@ -749,6 +803,7 @@ trait Conductors extends PatienceConfiguration {
      * @throws Throwable The first error or exception that is thrown by one of the test threads, or
      *    a <code>TestFailedException</code> if the test was aborted due to a timeout or suspected deadlock.
      */
+    @deprecated("This overloaded form of conduct has been deprecated and will be removed in a future version of ScalaTest. Please use one of the other overloaded forms of conduct instead.")
     def conduct(clockPeriod: Int, timeout: Int) {
       if (clockPeriod <= 0)
         throw new NotAllowedException(Resources("cannotPassNonPositiveClockPeriod", clockPeriod.toString), getStackDepthFun("Conductors.scala", "conduct"))
@@ -757,7 +812,7 @@ trait Conductors extends PatienceConfiguration {
       conductImpl(Span(timeout, Seconds),  Span(clockPeriod, Millis))
     }
  
-    private def conductImpl(timeout: Span, clockPeriod: Span) {
+    private def conductImpl(timeout: Span, clockInterval: Span) {
 
       // if the test was started already, explode
       // otherwise, change state to TestStarted
@@ -775,7 +830,7 @@ trait Conductors extends PatienceConfiguration {
       greenLightForTestThreads.countDown()
 
       // start the clock thread
-      val clockThread = ClockThread(timeout, clockPeriod)
+      val clockThread = ClockThread(timeout, clockInterval)
       clockThread.start()
 
       // wait until all threads have ended
@@ -975,18 +1030,18 @@ trait Conductors extends PatienceConfiguration {
      *
      *          stop the test due to potential deadlock
      *
-     *    sleep clockPeriod ms
+     *    sleep for one clockInterval
      *
      *
      * @param mainThread The main test thread. This thread will be waiting
      * for all the test threads to finish. It will be interrupted if the
      * ClockThread detects a deadlock or timeout.
      *
-     * @param clockPeriod The period (in ms) between checks for the clock
+     * @param clockInterval The period between checks for the clock
      *
-     * @param maxRunTime The limit to run the test in seconds
+     * @param timeout The max time limit allowed between successive ticks of the clock
      */
-    private case class ClockThread(maxRunTime: Span, clockPeriod: Span) extends Thread("Conductor-Clock") {
+    private case class ClockThread(timeout: Span, clockInterval: Span) extends Thread("Conductor-Clock") {
 
       // When a test thread throws an exception, the main thread will stop all the other threads,
       // but won't stop the clock thread. This is because the clock thread will simply return after
@@ -1028,7 +1083,7 @@ trait Conductors extends PatienceConfiguration {
           // exist, but the timeout limit has not been reached, then just go
           // back to sleep.
           else if (threadGroup.areAnyThreadsRunning) {
-            if (runningTooLong) timeout()
+            if (runningTooLong) stopDueToTimeout()
           }
           // No RUNNABLE threads, so if any threads are waiting for a beat, advance
           // the beat.
@@ -1044,7 +1099,7 @@ trait Conductors extends PatienceConfiguration {
             // go ahead and abort.
             detectDeadlock()
           }
-          Thread.sleep(clockPeriod.millisPart, clockPeriod.nanosPart)
+          Thread.sleep(clockInterval.millisPart, clockInterval.nanosPart)
         }
       }
 
@@ -1053,16 +1108,16 @@ trait Conductors extends PatienceConfiguration {
        * The number of seconds since the last progress are more
        * than the allowed maximum run time.
        */
-      private def runningTooLong = System.nanoTime - lastProgress > maxRunTime.totalNanos
+      private def runningTooLong = System.nanoTime - lastProgress > timeout.totalNanos
 
       /**
        * Stop the test due to a timeout.
        */
-      private def timeout() {
-        val errorMessage = Resources("testTimedOut", maxRunTime.prettyString)
+      private def stopDueToTimeout() {
+        val errorMessage = Resources("testTimedOut", timeout.prettyString)
         // The mainThread is likely joined to some test thread, so wake it up. It will look and
         // notice that the firstExceptionThrown is no longer empty, and will stop all live test threads,
-        // then rethrow the rirst exception thrown.
+        // then rethrow the first exception thrown.
         firstExceptionThrown offer new RuntimeException(errorMessage)
         mainThread.interrupt()
       }
@@ -1073,8 +1128,7 @@ trait Conductors extends PatienceConfiguration {
       private def detectDeadlock() {
         // Should never get to >= before ==, but just playing it safe
         if (deadlockCount >= MaxDeadlockDetectionsBeforeDeadlock) {
-          // val errorMessage = "Apparent Deadlock! Threads waiting 50 clock periods (" + (clockPeriod * 50) + "ms)"
-          val errorMessage = Resources("suspectedDeadlock", MaxDeadlockDetectionsBeforeDeadlock.toString, (clockPeriod scaledBy MaxDeadlockDetectionsBeforeDeadlock).prettyString)
+          val errorMessage = Resources("suspectedDeadlock", MaxDeadlockDetectionsBeforeDeadlock.toString, (clockInterval scaledBy MaxDeadlockDetectionsBeforeDeadlock).prettyString)
           firstExceptionThrown offer new RuntimeException(errorMessage)
 
           // The mainThread is likely joined to some test thread, so wake it up. It will look and
