@@ -31,7 +31,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
     val caught = intercept[NotAllowedException] { conductor.conduct() }
     caught.getMessage should be ("A Conductor's conduct method can only be invoked once.")
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 5))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 5))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
   }
@@ -57,7 +57,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
       }
     caught.getMessage should be ("Cannot invoke the thread method on Conductor after its multi-threaded test has completed.")
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 30))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 30))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
   }
@@ -72,7 +72,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
       }
     caught.getMessage should be ("Cannot invoke the thread method on Conductor after its multi-threaded test has completed.")
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 45))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 45))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
   }
@@ -87,7 +87,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
       }
     caught.getMessage should be ("Cannot invoke whenFinished after conduct (which is called by whenFinished) has been invoked.")
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 60))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 60))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
   }
@@ -104,7 +104,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
       }
     caught.getMessage should be ("Cannot register two threads with the same name. Duplicate name: Fiesta del Mar.")
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 77))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 77))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
   }
@@ -116,7 +116,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
         conductor.waitForBeat(0)
       }
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 90))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 90))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
     caught.getMessage should be ("A Conductor starts at beat zero, so you can't wait for beat zero.")
@@ -126,7 +126,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
       }
     caught2.getMessage should be ("A Conductor starts at beat zero, so you can only wait for a beat greater than zero.")
     caught2.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 99))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 99))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
   }
@@ -139,7 +139,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
       }
     caught.getMessage should be ("The clockPeriod passed to conduct must be greater than zero. Value passed was: 0.")
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 112))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 112))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
     val caught2 =
@@ -147,7 +147,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
         conductor.conduct(-1, 100)
       }
     caught2.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 121))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 121))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
     caught2.getMessage should be ("The clockPeriod passed to conduct must be greater than zero. Value passed was: -1.")
@@ -161,7 +161,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
       }
     caught.getMessage should be ("The timeout passed to conduct must be greater than zero. Value passed was: 0.")
     caught.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 134))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 134))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
     val caught2 =
@@ -169,7 +169,7 @@ class ConductorDeprecatedSuite extends FunSuite with ShouldMatchers with SharedH
         conductor.conduct(100, -1)
       }
     caught2.failedCodeFileNameAndLineNumberString match {
-      case Some(s) => s should equal ("ConductorSuite.scala:" + (baseLineNumber + 143))
+      case Some(s) => s should equal ("ConductorDeprecatedSuite.scala:" + (baseLineNumber + 143))
       case None => fail("Didn't produce a file name and line number string: ", caught)
     }
     caught2.getMessage should be ("The timeout passed to conduct must be greater than zero. Value passed was: -1.")
