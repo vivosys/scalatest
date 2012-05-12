@@ -84,7 +84,7 @@ import exceptions.ModifiableMessage
  * <p>
  * The <code>withClue</code> method will only append the clue string to the detail
  * message of exception types that mix in the <code>ModifiableMessage</code> trait.
- * See the documentation for <a href="ModifiableMessage.html"><code>ModifiableMessage</code></a> for more
+ * See the documentation for <a href="exceptions/ModifiableMessage.html"><code>ModifiableMessage</code></a> for more
  * information.
  * </p>
  *
@@ -163,7 +163,15 @@ trait AppendedClues { // TODO, can't put a comma. Write tests to not put the spa
     }
   }
 
+  /**
+   * Implicit conversion that allows clues to be place after a block of code.
+   */
   implicit def convertToClueful[T](fun: => T) = new Clueful(fun)
 }
 
+/**
+ * Companion object that facilitates the importing of <code>AppendedClues</code> members as 
+ * an alternative to mixing it in. One use case is to import <code>AppendedClues</code>
+ * members so you can use them in the Scala interpreter.
+ */
 object AppendedClues extends AppendedClues
