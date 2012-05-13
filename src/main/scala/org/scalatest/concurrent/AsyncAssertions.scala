@@ -34,7 +34,7 @@ import time.{Nanoseconds, Second, Span}
  * To use <code>Waiter</code>, create an instance of it in the main test thread:
  * </p>
  *
- * <pre class=stHighlight">
+ * <pre class="stHighlight">
  * val w = new Waiter // Do this in the main test thread
  * </pre>
  *

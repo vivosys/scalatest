@@ -23,8 +23,26 @@ import org.scalatest.exceptions.StackDepthExceptionHelper.getStackDepthFun
 import org.scalatest.exceptions.NotAllowedException
 
 /**
+ * <strong><code>org.scalatest.concurrent.Conductor</code> has been deprecated and will
+ * be removed in a future version of ScalaTest. Please mix in or import the members
+ * of trait <a href="Conductors.html"><code>Conductors</code></a>, into which <code>Conductor</code> has been moved, instead
+ * of using this class directly.</strong>
+ *
+ * <p>
+ * <strong>The reason <code>Conductor</code> was moved into trait <code>Conductors</code>
+ * was so that it can extend trait
+ * <a href="PatienceConfiguration.html"><code>PatienceConfiguration</code></a>, which was
+ * introduced in ScalaTest 1.8. This will make <code>Conductor</code> configurable in a
+ * way consistent with traits <code>Eventually</code> and <code>AsyncAssertions</code>
+ * (both of which were also introduced in ScalaTest 1.8), and scalable with the
+ * <code>scaled</code> method of trait
+ * <a href="ScaledTimeSpans.html"><code>ScaledTimeSpans</code></a>.</strong>
+ * </p>
+ *
+ * <p>
  * Class that facilitates the testing of classes, traits, and libraries designed
  * to be used by multiple threads concurrently.
+ * </p>
  *
  * <p>
  * A <code>Conductor</code> conducts a multi-threaded scenario by maintaining
