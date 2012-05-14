@@ -5,6 +5,7 @@ import org.scalatest.tools.Runner.parsePropertiesArgsIntoMap
 import org.scalatest.tools.Runner.parseCompoundArgIntoSet
 import org.scalatest.tools.Runner.parseChosenStylesIntoChosenStyleSet
 import org.scalatest.tools.Runner.parseSpanScaleFactor
+import org.scalatest.tools.Runner.parseConcurrentNumArg
 import SuiteDiscoveryHelper._
 import StringReporter.colorizeLinesIndividually
 import org.scalatest.Suite.formatterForSuiteStarting
@@ -14,6 +15,8 @@ import org.scalatest.events.SuiteStarting
 import org.scalatest.events.SuiteCompleted
 import org.scalatest.events.SuiteAborted
 import org.scalatest.Reporter
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * Class that makes ScalaTest tests visible to sbt.
@@ -135,13 +138,15 @@ write a sbt plugin to deploy the task.
       // println("sbt args: " + args.toList)
       if (isAccessibleSuite(testClass) || isRunnable(testClass)) {
 
-        val (propertiesArgsList, includesArgsList, excludesArgsList, repoArg, chosenStyles, spanScaleFactors) 
+        val (propertiesArgsList, includesArgsList, excludesArgsList, repoArg, chosenStyles, spanScaleFactors, concurrentList) 
           = parsePropsAndTags(args.filter(!_.equals("")))
         val propertiesMap: Map[String, String] = parsePropertiesArgsIntoMap(propertiesArgsList)
         val tagsToInclude: Set[String] = parseCompoundArgIntoSet(includesArgsList, "-n")
         val tagsToExclude: Set[String] = parseCompoundArgIntoSet(excludesArgsList, "-l")
         val chosenStyleSet: Set[String] = parseChosenStylesIntoChosenStyleSet(chosenStyles, "-y")
         Runner.spanScaleFactor = parseSpanScaleFactor(spanScaleFactors, "-F")
+        val concurrent: Boolean = !concurrentList.isEmpty
+        val numThreads: Int = parseConcurrentNumArg(concurrentList)
         
         if (propertiesMap.isDefinedAt("org.scalatest.ChosenStyles"))
           throw new IllegalArgumentException("Property name 'org.scalatest.ChosenStyles' is used by ScalaTest, please choose other property name.")
@@ -190,7 +195,23 @@ write a sbt plugin to deploy the task.
         report(SuiteStarting(tracker.nextOrdinal(), suite.suiteName, Some(testClass.getName), formatter, None))
 
         try {
-          suite.run(None, report, new Stopper {}, filter, configMap, None, tracker)
+          if (concurrent) {
+            val poolSize =
+              if (numThreads > 0) numThreads
+              else Runtime.getRuntime.availableProcessors * 2
+
+            val execSvc: ExecutorService = Executors.newFixedThreadPool(poolSize)
+            try {
+              val distributor = new ConcurrentDistributor(report, new Stopper {}, filter, configMap, execSvc)
+              distributor.apply(suite, tracker.nextTracker())
+              distributor.waitUntilDone()
+            }
+            finally {
+              execSvc.shutdown()
+            }
+          }
+          else
+            suite.run(None, report, new Stopper {}, filter, configMap, None, tracker)
 
           val formatter = formatterForSuiteCompleted(suite)
 
@@ -262,6 +283,7 @@ write a sbt plugin to deploy the task.
       var repoArg: Option[String] = None
       val chosenStyles = new ListBuffer[String]()
       val spanScaleFactors = new ListBuffer[String]()
+      val concurrent = new ListBuffer[String]()
 
       val it = args.iterator
       while (it.hasNext) {
@@ -295,6 +317,9 @@ write a sbt plugin to deploy the task.
           if (it.hasNext)
             spanScaleFactors += it.next()
         }
+        else if (s.startsWith("-P")) {
+          concurrent += s
+        }
         else if (s == "sequential") {
           // To skip as it is passed in from Play 2.0 as arg to specs2.
           println("Warning: \"sequential\" is ignored by ScalaTest. To get rid of this warning, please add \"testOptions in Test := Nil\" in main definition of your project build file.")
@@ -309,7 +334,7 @@ write a sbt plugin to deploy the task.
           throw new IllegalArgumentException("Unrecognized argument: " + s)
         }
       }
-      (props.toList, includes.toList, excludes.toList, repoArg, chosenStyles.toList, spanScaleFactors.toList)
+      (props.toList, includes.toList, excludes.toList, repoArg, chosenStyles.toList, spanScaleFactors.toList, concurrent.toList)
     }
   }
 }
