@@ -927,9 +927,9 @@ class FlatSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen with Sh
             "calls made from a test that is pending") {
       val a = new FlatSpec with GivenWhenThen {
         it should "do something else" in {
-          given("two integers")
-          when("one is subracted from the other")
-          then("the result is the difference between the two numbers")
+          Given("two integers")
+          When("one is subracted from the other")
+          Then("the result is the difference between the two numbers")
           pending
         }
       }
@@ -945,9 +945,9 @@ class FlatSpecSpec extends FunSpec with SharedHelpers with GivenWhenThen with Sh
             "calls made from a test that is not pending") {
       val a = new FlatSpec with GivenWhenThen {
         it should "do something else" in {
-          given("two integers")
-          when("one is subracted from the other")
-          then("the result is the difference between the two numbers")
+          Given("two integers")
+          When("one is subracted from the other")
+          Then("the result is the difference between the two numbers")
           assert(1 + 1 === 2)
         }
       }

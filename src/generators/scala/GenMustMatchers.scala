@@ -63,7 +63,7 @@ object GenMustMatchers extends App {
   generateFile("junit/ShouldMatchersForJUnit.scala", "junit/MustMatchersForJUnit.scala")
 }
 
-object GenMustMatchersTests extends Application {
+object GenMustMatchersTests extends App {
 
   val matchersDir = new File("target/generated/src/test/scala/org/scalatest/matchers")
   matchersDir.mkdirs()

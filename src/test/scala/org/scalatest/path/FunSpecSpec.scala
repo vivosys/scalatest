@@ -761,9 +761,9 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
     "should send InfoProvided events with aboutAPendingTest set to true for info calls made from a test that is pending" in {
       class AFunSpec extends PathFunSpec with GivenWhenThen {
         it("should do something else") {
-          given("two integers")
-          when("one is subracted from the other")
-          then("the result is the difference between the two numbers")
+          Given("two integers")
+          When("one is subracted from the other")
+          Then("the result is the difference between the two numbers")
           pending
         }
         override def newInstance = new AFunSpec
@@ -780,9 +780,9 @@ class FunSpecSpec extends org.scalatest.FreeSpec with SharedHelpers with GivenWh
     "should send InfoProvided events with aboutAPendingTest set to false for info calls made from a test that is not pending" in {
       class AFunSpec extends PathFunSpec with GivenWhenThen {
         it("should do something else") {
-          given("two integers")
-          when("one is subracted from the other")
-          then("the result is the difference between the two numbers")
+          Given("two integers")
+          When("one is subracted from the other")
+          Then("the result is the difference between the two numbers")
           assert(1 + 1 === 2)
         }
         override def newInstance = new AFunSpec

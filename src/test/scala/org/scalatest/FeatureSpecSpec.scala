@@ -515,9 +515,9 @@ class FeatureSpecSpec extends FunSpec with SharedHelpers {
             "calls made from a test that is pending") {
       val a = new FeatureSpec with GivenWhenThen {
         scenario("should do something else") {
-          given("two integers")
-          when("one is subracted from the other")
-          then("the result is the difference between the two numbers")
+          Given("two integers")
+          When("one is subracted from the other")
+          Then("the result is the difference between the two numbers")
           pending
         }
       }
@@ -533,9 +533,9 @@ class FeatureSpecSpec extends FunSpec with SharedHelpers {
             "calls made from a test that is not pending") {
       val a = new FeatureSpec with GivenWhenThen {
         scenario("should do something else") {
-          given("two integers")
-          when("one is subracted from the other")
-          then("the result is the difference between the two numbers")
+          Given("two integers")
+          When("one is subracted from the other")
+          Then("the result is the difference between the two numbers")
           assert(1 + 1 === 2)
         }
       }

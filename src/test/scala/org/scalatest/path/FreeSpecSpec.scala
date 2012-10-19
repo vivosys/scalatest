@@ -809,9 +809,9 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       class AFreeSpec extends PathFreeSpec with GivenWhenThen {
         "A FreeSpec" - {
           "should do something" in {
-            given("two integers")
-            when("one is subracted from the other")
-            then("the result is the difference between the two numbers")
+            Given("two integers")
+            When("one is subracted from the other")
+            Then("the result is the difference between the two numbers")
             pending
           }
         }
@@ -831,9 +831,9 @@ class FreeSpecSpec extends org.scalatest.FunSpec with SharedHelpers with GivenWh
       class AFreeSpec extends PathFreeSpec with GivenWhenThen {
         "A FreeSpec" - {
           "should do something" in {
-            given("two integers")
-            when("one is subracted from the other")
-            then("the result is the difference between the two numbers")
+            Given("two integers")
+            When("one is subracted from the other")
+            Then("the result is the difference between the two numbers")
             assert(1 + 1 === 2)
           }
         }

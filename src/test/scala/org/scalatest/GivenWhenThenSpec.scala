@@ -26,10 +26,10 @@ class GivenWhenThenSpec extends FunSpec with SharedHelpers {
     val theThen = "the validator should return false"
     class GivenWhenThenInsideTestSpec extends FunSpec with GivenWhenThen {
       it("should do something") {
-        given(theGiven)
-        and(theAnd)
-        when(theWhen)
-        then(theThen)
+        Given(theGiven)
+        And(theAnd)
+        When(theWhen)
+        Then(theThen)
       }
     }
     val spec = new GivenWhenThenInsideTestSpec
