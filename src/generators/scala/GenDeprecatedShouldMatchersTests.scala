@@ -47,7 +47,7 @@ object DeprecatedShouldMatcherTestsHelper {
 
 import DeprecatedShouldMatcherTestsHelper._
 
-object GenDeprecatedShouldMatchersTests extends Application {
+object GenDeprecatedShouldMatchersTests extends App {
 
   val matchersDir = new File("target/generated/src/test/scala/org/scalatest/matchers")
   matchersDir.mkdirs()

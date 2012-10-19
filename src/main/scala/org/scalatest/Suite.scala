@@ -1942,7 +1942,7 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
     catch {
       case e: NoSuchMethodException =>
         throw new IllegalArgumentException(Resources("testNotFound", testName))
-      case e =>
+      case e: Throwable =>
         throw e
     }
 
@@ -2082,12 +2082,12 @@ trait Suite extends Assertions with AbstractSuite with Serializable { thisSuite 
           case e if !anErrorThatShouldCauseAnAbort(e) =>
             val duration = System.currentTimeMillis - testStartTime
             handleFailedTest(t, hasPublicNoArgConstructor, testName, rerunnable, report, tracker, duration)
-          case e => throw e
+          case e: Throwable => throw e
         }
       case e if !anErrorThatShouldCauseAnAbort(e) =>
         val duration = System.currentTimeMillis - testStartTime
         handleFailedTest(e, hasPublicNoArgConstructor, testName, rerunnable, report, tracker, duration)
-      case e => throw e  
+      case e: Throwable => throw e  
     }
     finally {
       informerForThisTest.fireRecordedMessages(testWasPending)

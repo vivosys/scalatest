@@ -17,7 +17,7 @@ import java.io.File
 import java.io.FileWriter
 import java.io.BufferedWriter
 
-object GenFunSuiteN extends Application {
+object GenFunSuiteN extends App {
 
 // For some reason that I don't understand, I need to leave off the stars before the <pre> when 
 // they are next to ST commands. So I say  "   <pre>" sometimes instead of " * <pre>".

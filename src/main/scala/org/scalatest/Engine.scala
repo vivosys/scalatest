@@ -209,7 +209,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModResou
         val duration = System.currentTimeMillis - testStartTime
         val durationToReport = theTest.recordedDuration.getOrElse(duration)
         reportTestFailed(theSuite, report, e, testName, theTest.testText, rerunnable, tracker, durationToReport, theTest.indentationLevel, includeIcon)
-      case e => throw e
+      case e: Throwable => throw e
     }
     finally {
       informerForThisTest.fireRecordedMessages(testWasPending)

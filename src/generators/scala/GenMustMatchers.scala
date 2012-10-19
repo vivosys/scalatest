@@ -58,7 +58,7 @@ object Helper {
 
 import Helper._
 
-object GenMustMatchers extends Application {
+object GenMustMatchers extends App {
   generateFile("matchers/ShouldMatchers.scala", "matchers/MustMatchers.scala")
   generateFile("junit/ShouldMatchersForJUnit.scala", "junit/MustMatchersForJUnit.scala")
 }

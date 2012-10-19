@@ -19,7 +19,7 @@ import java.io.BufferedWriter
 import java.util.Calendar
 import scala.collection.JavaConversions._
 
-object GenGen extends Application {
+object GenGen extends App {
 
 val scaladocForTableFor1VerbatimString = """
 /**
@@ -720,7 +720,7 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
             }
             catch {
               case e: DiscardedEvaluationException => (true, None)
-              case e => (false, Some(e))
+              case e: Throwable => (false, Some(e))
             }
           !unmetCondition ==> (
             if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -762,7 +762,7 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
             }
             catch {
               case e: DiscardedEvaluationException => (true, None)
-              case e => (false, Some(e))
+              case e: Throwable => (false, Some(e))
             }
           !unmetCondition ==> (
             if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -805,7 +805,7 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
             }
             catch {
               case e: DiscardedEvaluationException => (true, None)
-              case e => (false, Some(e))
+              case e: Throwable => (false, Some(e))
             }
           !unmetCondition ==> (
             if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -849,7 +849,7 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
             }
             catch {
               case e: DiscardedEvaluationException => (true, None)
-              case e => (false, Some(e))
+              case e: Throwable => (false, Some(e))
             }
           !unmetCondition ==> (
             if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -894,7 +894,7 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
             }
             catch {
               case e: DiscardedEvaluationException => (true, None)
-              case e => (false, Some(e))
+              case e: Throwable => (false, Some(e))
             }
           !unmetCondition ==> (
             if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -940,7 +940,7 @@ trait GeneratorDrivenPropertyChecks extends Whenever with Configuration {
             }
             catch {
               case e: DiscardedEvaluationException => (true, None)
-              case e => (false, Some(e))
+              case e: Throwable => (false, Some(e))
             }
           !unmetCondition ==> (
             if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -983,7 +983,7 @@ $arbShrinks$
           }
           catch {
             case e: DiscardedEvaluationException => (true, None)
-            case e => (false, Some(e))
+            case e: Throwable => (false, Some(e))
           }
         !unmetCondition ==> (
           if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -1023,7 +1023,7 @@ $arbShrinks$
           }
           catch {
             case e: DiscardedEvaluationException => (true, None)
-            case e => (false, Some(e))
+            case e: Throwable => (false, Some(e))
           }
         !unmetCondition ==> (
           if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -1070,7 +1070,7 @@ $shrinks$
           }
           catch {
             case e: DiscardedEvaluationException => (true, None)
-            case e => (false, Some(e))
+            case e: Throwable => (false, Some(e))
           }
         !unmetCondition ==> (
           if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)
@@ -1120,7 +1120,7 @@ $tupleBusters$
           }
           catch {
             case e: DiscardedEvaluationException => (true, None)
-            case e => (false, Some(e))
+            case e: Throwable => (false, Some(e))
           }
         !unmetCondition ==> (
           if (exception.isEmpty) Prop.passed else Prop.exception(exception.get)

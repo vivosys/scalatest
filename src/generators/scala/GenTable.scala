@@ -19,7 +19,7 @@ import java.io.BufferedWriter
 import java.util.Calendar
 import scala.collection.JavaConversions._
 
-object GenTable extends Application {
+object GenTable extends App {
 
 val scaladocForTableFor1VerbatimString = """
 /**
@@ -318,7 +318,7 @@ class TableFor$n$[$alphaUpper$](val heading: ($strings$), rows: ($alphaUpper$)*)
       }
       catch {
         case _: DiscardedEvaluationException => // discard this evaluation and move on to the next
-        case ex =>
+        case ex: Throwable =>
           val ($alphaName$) = heading
 
           throw new TableDrivenPropertyCheckFailedException(
