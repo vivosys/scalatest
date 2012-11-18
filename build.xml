@@ -8,6 +8,7 @@
 
     <!-- set global properties for this build -->
     <property name="scala.version" value="2.10.0-RC2" />
+    <property name="scala.version.osgi" value="2.10.0" />
 	<property name="for.scala" value="2.10.0-RC2" />
 	<property name="release" value="1.8-B2" />
 
